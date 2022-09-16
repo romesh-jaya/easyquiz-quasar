@@ -1,9 +1,8 @@
-// Taken from https://getbootstrap.com/docs/5.1/layout/breakpoints/
-$xs: '(max-width: 576px)';
-$sm: '(max-width: 768px)';
-$md: '(min-width: 769px)';
+// Taken from https://quasar.dev/style/visibility
+$xs: '(max-width: 600px)';
+$sm: '(max-width: 1023px)';
+$md: '(min-width: 1024px)';
 
-$md-screen: 768px;
 $xl-screen: 1200px;
 
 $icon-filter-white: invert(100%) sepia(2%) saturate(7444%) hue-rotate(290deg)

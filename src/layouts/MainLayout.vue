@@ -5,7 +5,25 @@
         <q-avatar>
           <img src="../assets/logo.svg" />
         </q-avatar>
-        <q-toolbar-title class="text-accent"> EasyQuiz </q-toolbar-title>
+        <q-toolbar-title class="text-accent title"> EasyQuiz </q-toolbar-title>
+        <div class="link-container gt-xs">
+          <div>
+            <q-btn
+              to="/my-quizzes"
+              label="My Quizzes"
+              flat
+              color="white"
+              text-color="accent"
+            />
+            <q-btn
+              to="/others-quizzes"
+              label="Others Quizzes"
+              flat
+              color="white"
+              text-color="accent"
+            />
+          </div>
+        </div>
         <div>
           <q-btn
             flat
@@ -40,6 +58,18 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   height: 4rem;
+}
+
+.title {
+  flex: unset !important;
+  @media #{$xs} {
+    flex: 1 !important;
+  }
+}
+
+.link-container {
+  display: flex;
+  flex: 1;
 }
 
 .container {
