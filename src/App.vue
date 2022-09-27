@@ -2,18 +2,18 @@
   <router-view />
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup>
 import { auth } from './firebase';
+import { useAuthStore } from './stores/auth';
 
-export default defineComponent({
-  name: 'App',
-  setup() {
-    auth.onAuthStateChanged((user) => {
-      console.log('user', user);
-      //store.dispatch('fetchUser', user);
-    });
-  },
+const authStore = useAuthStore();
+
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    console.log('Logged in: ', user.email);
+    authStore.setUser(user);
+  }
+  authStore.setLoading(false);
 });
 </script>
 

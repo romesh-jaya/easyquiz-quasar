@@ -5,7 +5,7 @@ import { auth } from '../firebase';
 
 export interface IAuthState {
   user?: User;
-  authToken: string;
+  loading: boolean;
 }
 
 export interface IFirebaseSignupError {
@@ -21,7 +21,7 @@ export const useAuthStore = defineStore('auth', {
   state: () =>
     ({
       user: undefined,
-      authToken: '',
+      loading: true,
     } as IAuthState),
   getters: {},
   actions: {
@@ -45,6 +45,12 @@ export const useAuthStore = defineStore('auth', {
             };
         }
       }
+    },
+    setUser(user: User) {
+      this.user = user;
+    },
+    setLoading(loading: boolean) {
+      this.loading = loading;
     },
   },
 });

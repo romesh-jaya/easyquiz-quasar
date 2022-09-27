@@ -6,7 +6,7 @@
           <img src="../assets/logo.svg" />
         </q-avatar>
         <q-toolbar-title class="text-accent title"> EasyQuiz </q-toolbar-title>
-        <div class="link-container gt-xs">
+        <div v-if="!loadingAuth" class="link-container gt-xs">
           <div>
             <q-btn
               to="/my-quizzes"
@@ -30,6 +30,7 @@
         </div>
         <div>
           <q-btn
+            v-if="!loadingAuth"
             flat
             dense
             round
@@ -53,18 +54,18 @@
       </q-toolbar>
     </q-header>
 
-    <q-page-container>
+    <q-page-container v-if="!loadingAuth">
       <router-view />
     </q-page-container>
   </q-layout>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup>
+import { computed } from 'vue';
+import { useAuthStore } from '../stores/auth';
 
-export default defineComponent({
-  name: 'MainLayout',
-});
+const authStore = useAuthStore();
+const loadingAuth = computed(() => authStore.loading);
 </script>
 
 <style lang="scss">
