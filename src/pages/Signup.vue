@@ -53,10 +53,9 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { auth } from '../firebase';
 import { useQuasar } from 'quasar';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { emailValid } from '../utils/email';
+import { useAuthStore } from '../stores/auth';
 
 const email = ref('');
 const emailRef = ref();
@@ -67,27 +66,22 @@ const passwordConfirm = ref('');
 const passwordConfirmRef = ref();
 const router = useRouter();
 const $q = useQuasar();
+const authStore = useAuthStore();
 
-const register = () => {
-  createUserWithEmailAndPassword(auth, email.value, password.value)
-    .then(() => {
-      console.log('Successfully registered!');
-      router.push('/');
-    })
-    .catch((error) => {
-      const errorMessage = 'Unknown error occured while trying to signup.';
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          generalError.value = 'Email address is already in use';
-          break;
-        default:
-          $q.notify({
-            type: 'negative',
-            message: errorMessage,
-          });
-          break;
-      }
+const register = async () => {
+  const errorInfo = await authStore.registerUser(email.value, password.value);
+  if (errorInfo.error) {
+    if (errorInfo.isGeneralError) {
+      generalError.value = errorInfo.error;
+      return;
+    }
+    $q.notify({
+      type: 'negative',
+      message: errorInfo.error,
     });
+    return;
+  }
+  router.push('/');
 };
 
 const onSubmit = () => {
