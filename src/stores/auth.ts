@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { User } from '@firebase/auth-types';
+import { User } from 'firebase/auth';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 

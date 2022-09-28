@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app';
+import { User } from 'firebase/auth';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -17,3 +18,12 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 
 export { app, auth };
+
+export async function getCurrentUser(): Promise<User | null> {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      unsubscribe();
+      resolve(user);
+    }, reject);
+  });
+}
