@@ -11,3 +11,9 @@ $icon-filter-white: invert(100%) sepia(2%) saturate(7444%) hue-rotate(290deg)
 .q-field__bottom {
   padding: 4px 12px 0 !important;
 }
+
+.container-responsive {
+  margin-inline: auto;
+  width: 90%;
+  max-width: $xl-screen;
+}

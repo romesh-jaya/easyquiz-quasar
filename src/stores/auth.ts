@@ -63,9 +63,15 @@ export const useAuthStore = defineStore('auth', {
               error: 'Email address or password is incorrect',
               isGeneralError: true,
             };
+          case 'auth/too-many-requests':
+            return {
+              error:
+                'Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later.',
+              isGeneralError: true,
+            };
           default:
             return {
-              error: 'Unknown error occured while trying to signup',
+              error: 'Unknown error occured while trying to login',
               isGeneralError: false,
             };
         }

@@ -9,7 +9,7 @@ import {
 
 import routes from './routes';
 
-const publicPages = ['/login', '/signup'];
+const publicPages = ['/login', '/signup', '/'];
 
 /*
  * If not building with SSR mode, you can
@@ -41,11 +41,7 @@ export default route(function (/* { store, ssrContext } */) {
     const authRequired = !publicPages.includes(to.path);
     const currentUser = await getCurrentUser();
     if (!authRequired) {
-      if (!currentUser) {
-        next();
-      } else {
-        next('/'); // redirect to home if already logged in
-      }
+      next();
     } else {
       if (currentUser) {
         next();

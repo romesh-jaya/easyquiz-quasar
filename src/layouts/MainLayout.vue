@@ -1,12 +1,12 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated class="header bg-white">
-      <q-toolbar class="container">
+      <q-toolbar class="container-responsive">
         <q-avatar>
           <img src="../assets/logo.svg" />
         </q-avatar>
         <q-toolbar-title class="text-accent title"> EasyQuiz </q-toolbar-title>
-        <div v-if="!loadingAuth" class="link-container gt-xs">
+        <div v-if="!loadingAuth && isLoggedIn" class="link-container gt-xs">
           <div>
             <q-btn
               to="/my-quizzes"
@@ -30,7 +30,7 @@
         </div>
         <div>
           <q-btn
-            v-if="!loadingAuth"
+            v-if="!loadingAuth && isLoggedIn"
             flat
             dense
             round
@@ -70,11 +70,12 @@ import { useAuthStore } from '../stores/auth';
 
 const authStore = useAuthStore();
 const loadingAuth = computed(() => authStore.loading);
+const isLoggedIn = computed(() => !!authStore.user);
 const router = useRouter();
 
 const onLogout = async () => {
   await authStore.logOut();
-  router.push('/login');
+  router.push('/');
 };
 </script>
 
@@ -97,11 +98,5 @@ const onLogout = async () => {
 .link-container {
   display: flex;
   flex: 1;
-}
-
-.container {
-  margin: auto;
-  width: 90%;
-  max-width: $xl-screen;
 }
 </style>

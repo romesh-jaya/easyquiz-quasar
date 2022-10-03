@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="text-center">
     <h3 class="text-h4 text-accent">Login</h3>
     <q-input
       ref="emailRef"
@@ -92,10 +92,6 @@ const emailValidateSuccess = () => {
 
 <style lang="scss">
 @import '../css/globals.scss';
-
-.container {
-  text-align: center;
-}
 
 .input-field {
   max-width: 300px;
