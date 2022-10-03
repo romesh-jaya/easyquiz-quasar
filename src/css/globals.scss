@@ -7,3 +7,7 @@ $xl-screen: 1200px;
 
 $icon-filter-white: invert(100%) sepia(2%) saturate(7444%) hue-rotate(290deg)
   brightness(108%) contrast(97%);
+
+.q-field__bottom {
+  padding: 4px 12px 0 !important;
+}

@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia';
 import { User } from 'firebase/auth';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth';
 import { auth } from '../firebase';
 
 export interface IAuthState {
@@ -45,6 +49,31 @@ export const useAuthStore = defineStore('auth', {
             };
         }
       }
+    },
+    async logIn(email: string, password: string) {
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        return { error: '' };
+      } catch (err) {
+        const error = err as IFirebaseSignupError;
+        switch (error.code) {
+          case 'auth/wrong-password':
+          case 'auth/user-not-found':
+            return {
+              error: 'Email address or password is incorrect',
+              isGeneralError: true,
+            };
+          default:
+            return {
+              error: 'Unknown error occured while trying to signup',
+              isGeneralError: false,
+            };
+        }
+      }
+    },
+    async logOut() {
+      await signOut(auth);
+      this.user = undefined;
     },
     setUser(user: User) {
       this.user = user;

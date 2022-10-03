@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h3 class="text-h4 text-accent">Create account</h3>
+    <h3 class="text-h4 text-accent">Login</h3>
     <q-input
       ref="emailRef"
       v-model="email"
@@ -28,19 +28,7 @@
       class="input-field"
       @update:model-value="onFieldChange"
     />
-    <q-input
-      ref="passwordConfirmRef"
-      v-model="passwordConfirm"
-      outlined
-      dense
-      type="password"
-      placeholder="Confirm Password"
-      :rules="[(val) => !!val || '* Required']"
-      lazy-rules
-      class="input-field"
-      @update:model-value="onFieldChange"
-    />
-    <q-btn color="accent" class="q-mt-md" @click="onSubmit">Create</q-btn>
+    <q-btn color="accent" class="q-mt-md" @click="onSubmit">Login</q-btn>
     <div
       v-if="generalError"
       class="q-field__bottom q-mt-md q-mx-auto email-exists"
@@ -62,14 +50,12 @@ const emailRef = ref();
 const generalError = ref('');
 const password = ref('');
 const passwordRef = ref();
-const passwordConfirm = ref('');
-const passwordConfirmRef = ref();
 const router = useRouter();
 const $q = useQuasar();
 const authStore = useAuthStore();
 
-const register = async () => {
-  const errorInfo = await authStore.registerUser(email.value, password.value);
+const login = async () => {
+  const errorInfo = await authStore.logIn(email.value, password.value);
   if (errorInfo.error) {
     if (errorInfo.isGeneralError) {
       generalError.value = errorInfo.error;
@@ -87,21 +73,12 @@ const register = async () => {
 const onSubmit = () => {
   emailRef.value.validate();
   passwordRef.value.validate();
-  passwordConfirmRef.value.validate();
 
-  if (
-    emailRef.value.hasError ||
-    passwordRef.value.hasError ||
-    passwordConfirmRef.value.hasError
-  ) {
+  if (emailRef.value.hasError || passwordRef.value.hasError) {
     return;
   }
 
-  if (password.value !== passwordConfirm.value) {
-    generalError.value = 'Password and Confirm Password do not match';
-    return;
-  }
-  register();
+  login();
 };
 
 const onFieldChange = () => {

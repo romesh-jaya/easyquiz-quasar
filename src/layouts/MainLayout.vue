@@ -47,6 +47,9 @@
                   <q-item-section>Others Quizzes</q-item-section>
                 </q-item>
                 <q-separator />
+                <q-item clickable>
+                  <q-item-section @click="onLogout">Logout</q-item-section>
+                </q-item>
               </q-list>
             </q-menu>
           </q-btn>
@@ -62,10 +65,17 @@
 
 <script setup>
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
 const authStore = useAuthStore();
 const loadingAuth = computed(() => authStore.loading);
+const router = useRouter();
+
+const onLogout = async () => {
+  await authStore.logOut();
+  router.push('/login');
+};
 </script>
 
 <style lang="scss">
