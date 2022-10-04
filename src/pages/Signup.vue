@@ -13,32 +13,9 @@
       class="input-field"
       @update:model-value="onFieldChange"
     />
-    <q-input
-      ref="passwordRef"
-      v-model="password"
-      outlined
-      dense
-      type="password"
-      placeholder="Password"
-      :rules="[
-        (val) => !!val || '* Required',
-        (val) => val.length >= 6 || 'Please enter minimum 6 characters',
-      ]"
-      lazy-rules
-      class="input-field"
-      @update:model-value="onFieldChange"
-    />
-    <q-input
-      ref="passwordConfirmRef"
-      v-model="passwordConfirm"
-      outlined
-      dense
-      type="password"
-      placeholder="Confirm Password"
-      :rules="[(val) => !!val || '* Required']"
-      lazy-rules
-      class="input-field"
-      @update:model-value="onFieldChange"
+    <PasswordWithConfirm
+      ref="passwordWithConfirmRef"
+      @password-update="onFieldChange"
     />
     <q-btn color="accent" class="q-mt-md" :loading="loading" @click="onSubmit"
       >Create</q-btn
@@ -52,28 +29,26 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { emailValid } from '../utils/email';
 import { useAuthStore } from '../stores/auth';
+import PasswordWithConfirm from '../components/PasswordWithConfirm.vue';
 
 const email = ref('');
 const emailRef = ref();
+const passwordWithConfirmRef = ref();
 const generalError = ref('');
-const password = ref('');
-const passwordRef = ref();
-const passwordConfirm = ref('');
-const passwordConfirmRef = ref();
 const router = useRouter();
 const $q = useQuasar();
 const authStore = useAuthStore();
 const loading = ref(false);
 
-const register = async () => {
+const register = async (email: string, password: string) => {
   loading.value = true;
-  const errorInfo = await authStore.registerUser(email.value, password.value);
+  const errorInfo = await authStore.registerUser(email, password);
   loading.value = false;
   if (errorInfo.error) {
     if (errorInfo.isGeneralError) {
@@ -91,26 +66,22 @@ const register = async () => {
 
 const onSubmit = () => {
   emailRef.value.validate();
-  passwordRef.value.validate();
-  passwordConfirmRef.value.validate();
+  const passwordWithConfirmData =
+    passwordWithConfirmRef.value.getPasswordOrError();
 
-  if (
-    emailRef.value.hasError ||
-    passwordRef.value.hasError ||
-    passwordConfirmRef.value.hasError
-  ) {
+  if (emailRef.value.hasError || passwordWithConfirmData.validationError) {
     return;
   }
 
-  if (password.value !== passwordConfirm.value) {
-    generalError.value = 'Password and Confirm Password do not match';
+  if (passwordWithConfirmData.errorMessage) {
+    generalError.value = passwordWithConfirmData.errorMessage;
     return;
   }
-  register();
+  register(email.value, passwordWithConfirmData.password);
 };
 
 const onFieldChange = () => {
-  generalError.value = false;
+  generalError.value = '';
 };
 
 const emailValidateSuccess = () => {
