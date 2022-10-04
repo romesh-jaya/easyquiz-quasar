@@ -9,7 +9,7 @@ import {
 
 import routes from './routes';
 
-const publicPages = ['/login', '/signup', '/'];
+const publicPages = ['/login', '/signup', '/', '/password-reset'];
 
 /*
  * If not building with SSR mode, you can

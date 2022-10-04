@@ -16,6 +16,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('pages/Login.vue') }],
   },
+  {
+    path: '/password-reset',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/PasswordReset.vue') },
+    ],
+  },
   // Always leave this as last one,
   // but you can also remove it
   {

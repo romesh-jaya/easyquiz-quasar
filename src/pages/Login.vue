@@ -28,7 +28,13 @@
       class="input-field"
       @update:model-value="onFieldChange"
     />
-    <q-btn color="accent" class="q-mt-md" @click="onSubmit">Login</q-btn>
+    <q-btn color="accent" class="q-mt-md" :loading="loading" @click="onSubmit"
+      >Login</q-btn
+    >
+    <p class="q-mt-md text-center text-body2">
+      Forgot password?
+      <router-link to="/password-reset">Send a reset email.</router-link>
+    </p>
     <div
       v-if="generalError"
       class="q-field__bottom q-mt-md q-mx-auto email-exists"
@@ -53,9 +59,12 @@ const passwordRef = ref();
 const router = useRouter();
 const $q = useQuasar();
 const authStore = useAuthStore();
+const loading = ref(false);
 
 const login = async () => {
+  loading.value = true;
   const errorInfo = await authStore.logIn(email.value, password.value);
+  loading.value = false;
   if (errorInfo.error) {
     if (errorInfo.isGeneralError) {
       generalError.value = errorInfo.error;
@@ -90,17 +99,4 @@ const emailValidateSuccess = () => {
 };
 </script>
 
-<style lang="scss">
-@import '../css/globals.scss';
-
-.input-field {
-  max-width: 300px;
-  margin: auto;
-}
-
-.email-exists {
-  max-width: 300px;
-  color: var(--q-negative);
-  padding: 0 !important;
-}
-</style>
+<style lang="scss"></style>

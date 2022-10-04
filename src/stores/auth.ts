@@ -6,14 +6,11 @@ import {
   signOut,
 } from 'firebase/auth';
 import { auth } from '../firebase';
+import { IFirebaseAuthError } from '../interfaces/IFirebaseAuthError';
 
 export interface IAuthState {
   user?: User;
   loading: boolean;
-}
-
-export interface IFirebaseSignupError {
-  code: string;
 }
 
 export interface ISignupError {
@@ -35,7 +32,7 @@ export const useAuthStore = defineStore('auth', {
         console.log('Successfully registered!');
         return { error: '' };
       } catch (err) {
-        const error = err as IFirebaseSignupError;
+        const error = err as IFirebaseAuthError;
         switch (error.code) {
           case 'auth/email-already-in-use':
             return {
@@ -55,7 +52,7 @@ export const useAuthStore = defineStore('auth', {
         await signInWithEmailAndPassword(auth, email, password);
         return { error: '' };
       } catch (err) {
-        const error = err as IFirebaseSignupError;
+        const error = err as IFirebaseAuthError;
         switch (error.code) {
           case 'auth/wrong-password':
           case 'auth/user-not-found':
