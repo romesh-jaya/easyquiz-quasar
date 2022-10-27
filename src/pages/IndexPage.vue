@@ -24,7 +24,7 @@ import { computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
 
 const authStore = useAuthStore();
-const isLoggedIn = computed(() => !!authStore.user);
+const isLoggedIn = computed(() => !!authStore.quizUser);
 </script>
 
 <style lang="scss">

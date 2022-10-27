@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia';
-import { User } from 'firebase/auth';
 import { api } from 'boot/axios';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '../firebase';
+import { IQuizUser } from '../interfaces/IQuizUser';
 import { IFirebaseAuthError } from '../interfaces/IFirebaseAuthError';
 import { getBackendURL } from '../utils/backend';
 
 export interface IAuthState {
-  user?: User;
+  quizUser?: IQuizUser;
   loading: boolean;
 }
 
@@ -19,7 +19,7 @@ export interface ISignupError {
 export const useAuthStore = defineStore('auth', {
   state: () =>
     ({
-      user: undefined,
+      quizUser: undefined,
       loading: true,
     } as IAuthState),
   getters: {},
@@ -82,10 +82,10 @@ export const useAuthStore = defineStore('auth', {
     },
     async logOut() {
       await signOut(auth);
-      this.user = undefined;
+      this.quizUser = undefined;
     },
-    setUser(user: User) {
-      this.user = user;
+    setQuizUser(quizUser: IQuizUser) {
+      this.quizUser = quizUser;
     },
     setLoading(loading: boolean) {
       this.loading = loading;

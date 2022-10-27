@@ -70,7 +70,7 @@ import { useAuthStore } from '../stores/auth';
 
 const authStore = useAuthStore();
 const loadingAuth = computed(() => authStore.loading);
-const isLoggedIn = computed(() => !!authStore.user);
+const isLoggedIn = computed(() => !!authStore.quizUser);
 const router = useRouter();
 
 const onLogout = async () => {

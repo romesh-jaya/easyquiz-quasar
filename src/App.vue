@@ -4,17 +4,9 @@
 
 <script setup>
 import { auth } from './firebase';
-import { useAuthStore } from './stores/auth';
+import { onAuthStateChanged } from './utils/auth';
 
-const authStore = useAuthStore();
-
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    console.log('Logged in: ', user.email);
-    authStore.setUser(user);
-  }
-  authStore.setLoading(false);
-});
+auth.onAuthStateChanged((user) => onAuthStateChanged(user));
 </script>
 
 <style lang="scss">
