@@ -1,5 +1,6 @@
 import { Notify } from 'quasar';
 import { getUserData } from '../api';
+import { api } from 'boot/axios';
 import { User } from 'firebase/auth';
 import { useAuthStore } from '../stores/auth';
 
@@ -9,6 +10,9 @@ export const onAuthStateChanged = async (firebaseUser: User) => {
   if (firebaseUser) {
     console.log('Firebase logged in: ', firebaseUser.email);
     try {
+      // Interceptor
+      api.defaults.headers.common['Authorization'] =
+        'Bearer ' + (await firebaseUser.getIdToken());
       const userDataDB = await getUserData(firebaseUser.email || '');
       if (!userDataDB.firstName) {
         await authStore.logOut();

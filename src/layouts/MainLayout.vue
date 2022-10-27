@@ -40,6 +40,12 @@
           >
             <q-menu auto-close fit class="text-accent text-subtitle1">
               <q-list style="min-width: 200px">
+                <q-item disabled>
+                  <q-item-section class="text-subtitle2 welcome"
+                    >Welcome, {{ firstName }}</q-item-section
+                  >
+                </q-item>
+                <q-separator class="xs" />
                 <q-item clickable class="xs">
                   <q-item-section>My Quizzes</q-item-section>
                 </q-item>
@@ -71,6 +77,7 @@ import { useAuthStore } from '../stores/auth';
 const authStore = useAuthStore();
 const loadingAuth = computed(() => authStore.loading);
 const isLoggedIn = computed(() => !!authStore.quizUser);
+const firstName = computed(() => authStore.quizUser?.firstName);
 const router = useRouter();
 
 const onLogout = async () => {
@@ -98,5 +105,10 @@ const onLogout = async () => {
 .link-container {
   display: flex;
   flex: 1;
+}
+
+.welcome {
+  white-space: nowrap;
+  overflow: hidden;
 }
 </style>
