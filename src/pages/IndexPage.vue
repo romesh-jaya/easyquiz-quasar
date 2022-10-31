@@ -7,7 +7,7 @@
         </div>
       </q-img>
     </div>
-    <div class="q-mt-md container-responsive">
+    <div v-if="!loadingAuth" class="q-mt-md container-responsive">
       <p v-if="isLoggedIn" class="text-center">
         Click here to start your first quiz.
       </p>
@@ -25,6 +25,7 @@ import { useAuthStore } from '../stores/auth';
 
 const authStore = useAuthStore();
 const isLoggedIn = computed(() => !!authStore.quizUser);
+const loadingAuth = computed(() => authStore.loading);
 </script>
 
 <style lang="scss">

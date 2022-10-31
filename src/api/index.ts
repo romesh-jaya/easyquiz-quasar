@@ -3,9 +3,7 @@ import { api } from 'boot/axios';
 import { getBackendURL } from '../utils/backend';
 
 export const getUserData = async (email: string): Promise<IUserDataDB> => {
-  const response = await api.get(
-    `${getBackendURL()}/api/auth/quiz-user?email=${email}`
-  );
+  const response = await api.get(`${getBackendURL()}/api/auth/users/${email}`);
   if (response.data) {
     return {
       firstName: response.data.first_name,
