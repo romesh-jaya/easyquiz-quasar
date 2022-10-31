@@ -62,8 +62,8 @@
         </div>
       </q-toolbar>
     </q-header>
-
     <q-page-container>
+      <q-linear-progress v-if="loadingAuth" indeterminate />
       <router-view />
     </q-page-container>
   </q-layout>

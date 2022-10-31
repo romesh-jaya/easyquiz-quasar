@@ -32,7 +32,7 @@ export const useAuthStore = defineStore('auth', {
     ): Promise<ISignupError> {
       try {
         const response = await api.post(
-          `${getBackendURL()}/api/auth/users/register-user`,
+          `${getBackendURL()}/api/public/users/register-user`,
           {
             email,
             password,

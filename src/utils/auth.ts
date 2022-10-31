@@ -8,6 +8,7 @@ export const onAuthStateChanged = async (firebaseUser: User) => {
   const authStore = useAuthStore();
 
   if (firebaseUser) {
+    authStore.setLoading(true);
     console.log('Firebase logged in: ', firebaseUser.email);
     try {
       // Interceptor
