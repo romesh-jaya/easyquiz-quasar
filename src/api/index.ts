@@ -1,6 +1,7 @@
 import { IUserDataDB } from '@/interfaces/IQuizUser';
 import { api } from 'boot/axios';
 import { getBackendURL } from '../utils/backend';
+import { IAPIError } from '../interfaces/IAPIError';
 
 export const getUserData = async (email: string): Promise<IUserDataDB> => {
   const response = await api.get(`${getBackendURL()}/api/auth/users/${email}`);
@@ -11,4 +12,30 @@ export const getUserData = async (email: string): Promise<IUserDataDB> => {
     };
   }
   return { firstName: '', lastName: '' };
+};
+
+export const saveQuizData = async (
+  quizName: string,
+  description: string,
+  passMarkPercentage: number,
+  id?: string
+): Promise<IAPIError> => {
+  if (id) {
+    const response = await api.put(
+      `${getBackendURL()}/api/auth/quizzes/${id}`,
+      {
+        quizName,
+        description,
+        passMarkPercentage,
+      }
+    );
+    return response.data as IAPIError;
+  }
+
+  const response = await api.post(`${getBackendURL()}/api/auth/quizzes`, {
+    quizName,
+    description,
+    passMarkPercentage,
+  });
+  return response.data as IAPIError;
 };

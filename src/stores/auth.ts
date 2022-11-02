@@ -5,15 +5,11 @@ import { auth } from '../firebase';
 import { IQuizUser } from '../interfaces/IQuizUser';
 import { IFirebaseAuthError } from '../interfaces/IFirebaseAuthError';
 import { getBackendURL } from '../utils/backend';
+import { IAPIError } from '../interfaces/IAPIError';
 
 export interface IAuthState {
   quizUser?: IQuizUser;
   loading: boolean;
-}
-
-export interface ISignupError {
-  error: string;
-  isGeneralError?: boolean;
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -29,7 +25,7 @@ export const useAuthStore = defineStore('auth', {
       password: string,
       firstName: string,
       lastName: string
-    ): Promise<ISignupError> {
+    ): Promise<IAPIError> {
       try {
         const response = await api.post(
           `${getBackendURL()}/api/public/users/register-user`,
@@ -41,7 +37,7 @@ export const useAuthStore = defineStore('auth', {
           }
         );
         if (response.data && response.data.error) {
-          return response.data as ISignupError;
+          return response.data as IAPIError;
         }
         return { error: '' };
       } catch (err) {
