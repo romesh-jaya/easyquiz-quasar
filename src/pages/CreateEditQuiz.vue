@@ -41,7 +41,11 @@
       onkeypress="return event.charCode >= 48 && event.charCode <= 57"
       @update:model-value="onFieldChange"
     />
-    <q-btn color="accent" class="q-mt-md" :loading="loading" @click="onSubmit"
+    <q-btn
+      color="accent"
+      class="q-mt-md"
+      :loading="loading || loadingAuth"
+      @click="onSubmit"
       >Create</q-btn
     >
     <div
@@ -54,10 +58,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 // import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { saveQuizData } from '../api';
+import { useAuthStore } from '../stores/auth';
+
+const authStore = useAuthStore();
 
 const quizName = ref('');
 const quizNameRef = ref();
@@ -69,6 +76,7 @@ const generalError = ref('');
 //const router = useRouter();
 const $q = useQuasar();
 const loading = ref(false);
+const loadingAuth = computed(() => authStore.loading);
 
 const saveQuiz = async () => {
   loading.value = true;
