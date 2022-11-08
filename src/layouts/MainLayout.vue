@@ -97,7 +97,7 @@ const onLogout = async () => {
 
 .title {
   flex: unset !important;
-  @media #{$xs} {
+  @media (max-width: $breakpoint-xs-max) {
     flex: 1 !important;
   }
 }

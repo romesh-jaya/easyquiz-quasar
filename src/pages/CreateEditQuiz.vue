@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-// import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { saveQuizData } from '../api';
 import { useAuthStore } from '../stores/auth';
@@ -70,10 +70,10 @@ const quizName = ref('');
 const quizNameRef = ref();
 const description = ref('');
 const descriptionRef = ref();
-const passMarkPercentage = ref(0);
+const passMarkPercentage = ref<number | null>(null);
 const passMarkPercentageRef = ref();
 const generalError = ref('');
-//const router = useRouter();
+const router = useRouter();
 const $q = useQuasar();
 const loading = ref(false);
 const loadingAuth = computed(() => authStore.loading);
@@ -85,7 +85,7 @@ const saveQuiz = async () => {
     const errorInfo = await saveQuizData(
       quizName.value,
       description.value,
-      passMarkPercentage.value
+      passMarkPercentage.value || 0
     );
 
     if (errorInfo.error) {
@@ -99,7 +99,7 @@ const saveQuiz = async () => {
       });
       return;
     }
-    //router.push('/login');
+    router.push('/my-quizzes');
   } catch (err) {
     console.error(err);
 
