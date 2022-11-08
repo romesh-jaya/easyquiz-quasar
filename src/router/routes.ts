@@ -38,6 +38,11 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: '/my-quizzes',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [{ path: '', component: () => import('pages/MyQuizzes.vue') }],
+  },
+  {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
   },

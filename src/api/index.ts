@@ -2,6 +2,7 @@ import { IUserDataDB } from '@/interfaces/IQuizUser';
 import { api } from 'boot/axios';
 import { getBackendURL } from '../utils/backend';
 import { IAPIError } from '../interfaces/IAPIError';
+import { IQuiz } from '../interfaces/IQuiz';
 
 export const getUserData = async (email: string): Promise<IUserDataDB> => {
   const response = await api.get(`${getBackendURL()}/api/auth/users/${email}`);
@@ -12,6 +13,11 @@ export const getUserData = async (email: string): Promise<IUserDataDB> => {
     };
   }
   return { firstName: '', lastName: '' };
+};
+
+export const getMyQuizzes = async (): Promise<IQuiz> => {
+  const response = await api.get(`${getBackendURL()}/api/auth/quizzes`);
+  return response.data;
 };
 
 export const saveQuizData = async (

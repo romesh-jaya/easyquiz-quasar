@@ -80,24 +80,36 @@ const loadingAuth = computed(() => authStore.loading);
 
 const saveQuiz = async () => {
   loading.value = true;
-  const errorInfo = await saveQuizData(
-    quizName.value,
-    description.value,
-    passMarkPercentage.value
-  );
-  loading.value = false;
-  if (errorInfo.error) {
-    if (errorInfo.isGeneralError) {
-      generalError.value = errorInfo.error;
+
+  try {
+    const errorInfo = await saveQuizData(
+      quizName.value,
+      description.value,
+      passMarkPercentage.value
+    );
+
+    if (errorInfo.error) {
+      if (errorInfo.isGeneralError) {
+        generalError.value = errorInfo.error;
+        return;
+      }
+      $q.notify({
+        type: 'negative',
+        message: errorInfo.error,
+      });
       return;
     }
+    //router.push('/login');
+  } catch (err) {
+    console.error(err);
+
     $q.notify({
       type: 'negative',
-      message: errorInfo.error,
+      message: 'Unknown error occured while trying to signup',
     });
-    return;
+  } finally {
+    loading.value = false;
   }
-  //router.push('/login');
 };
 
 const onSubmit = () => {
