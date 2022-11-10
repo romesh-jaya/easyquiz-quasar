@@ -55,4 +55,5 @@ export const onAuthStateChanged = async (firebaseUser: User) => {
       });
     }
   }
+  authStore.setLoading(false); // Note: this has to be OUTSIDE the if (firebaseUser)... block
 };

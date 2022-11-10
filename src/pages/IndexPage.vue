@@ -7,11 +7,11 @@
         </div>
       </q-img>
     </div>
-    <div
-      v-if="!loadingAuth && !loadingQuizzes"
-      class="q-mt-md container-responsive"
-    >
-      <p v-if="isLoggedIn && myQuizzes.length === 0" class="text-center">
+    <div v-if="!loadingAuth" class="q-mt-md container-responsive">
+      <p
+        v-if="isLoggedIn && !loadingQuizzes && myQuizzes.length === 0"
+        class="text-center"
+      >
         Click <router-link to="/create-edit-quiz">here</router-link> to start
         your first quiz.
       </p>
