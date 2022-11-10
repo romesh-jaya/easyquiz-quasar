@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "start": "quasar dev",
-    "build": "quasar build",
+    "build": "cross-env ENV=staging quasar build",
     "deploy": "vercel",
     "lint": "eslint --ext .ts,.vue --ignore-path .gitignore --fix src",
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
@@ -32,6 +32,7 @@
     "@typescript-eslint/parser": "^5.10.0",
     "@vue/eslint-config-typescript": "^11.0.1",
     "autoprefixer": "^10.4.2",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.0.2",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.1.0",

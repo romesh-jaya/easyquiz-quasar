@@ -24,6 +24,10 @@
           :title="myQuiz.name"
           :description="myQuiz.description"
         />
+        <p v-if="!loading && myQuizzes.length === 0">
+          You currently have not created any quizzes. Click Create Quiz to
+          create your first Quiz!
+        </p>
       </div>
     </div>
 

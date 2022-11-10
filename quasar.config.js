@@ -59,7 +59,9 @@ module.exports = configure(function (/* ctx */) {
 
       // publicPath: '/',
       // analyze: true,
-      env: require('dotenv').config().parsed,
+
+      // In addition to dotenv variables, also add the process.env.ENV coming from terminal
+      env: { ...require('dotenv').config().parsed, ENV: process.env.ENV },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
