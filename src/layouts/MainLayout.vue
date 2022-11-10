@@ -2,13 +2,11 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated class="header bg-white">
       <q-toolbar class="container-responsive">
-        <q-btn to="/" flat no-caps>
+        <q-btn to="/" flat no-caps class="title">
           <q-avatar>
             <img src="../assets/logo.svg" />
           </q-avatar>
-          <q-toolbar-title class="text-accent title">
-            EasyQuiz
-          </q-toolbar-title>
+          <q-toolbar-title class="text-accent"> EasyQuiz </q-toolbar-title>
         </q-btn>
         <div v-if="!loadingAuth && isLoggedIn" class="link-container gt-xs">
           <div>
