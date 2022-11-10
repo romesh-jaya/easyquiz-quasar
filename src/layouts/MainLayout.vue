@@ -2,10 +2,14 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated class="header bg-white">
       <q-toolbar class="container-responsive">
-        <q-avatar>
-          <img src="../assets/logo.svg" />
-        </q-avatar>
-        <q-toolbar-title class="text-accent title"> EasyQuiz </q-toolbar-title>
+        <q-btn to="/" flat no-caps>
+          <q-avatar>
+            <img src="../assets/logo.svg" />
+          </q-avatar>
+          <q-toolbar-title class="text-accent title">
+            EasyQuiz
+          </q-toolbar-title>
+        </q-btn>
         <div v-if="!loadingAuth && isLoggedIn" class="link-container gt-xs">
           <div>
             <q-btn
@@ -46,7 +50,7 @@
                   >
                 </q-item>
                 <q-separator class="xs" />
-                <q-item clickable class="xs">
+                <q-item clickable to="/my-quizzes" class="xs">
                   <q-item-section>My Quizzes</q-item-section>
                 </q-item>
                 <q-item clickable class="xs">

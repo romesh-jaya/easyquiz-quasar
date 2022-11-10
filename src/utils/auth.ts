@@ -3,9 +3,11 @@ import { getUserData } from '../api';
 import { api } from 'boot/axios';
 import { User } from 'firebase/auth';
 import { useAuthStore } from '../stores/auth';
+import { useMyQuizzesStore } from '../stores/myQuizzes';
 
 export const onAuthStateChanged = async (firebaseUser: User) => {
   const authStore = useAuthStore();
+  const myQuizzesStore = useMyQuizzesStore();
 
   if (firebaseUser) {
     authStore.setLoading(true);
@@ -14,6 +16,8 @@ export const onAuthStateChanged = async (firebaseUser: User) => {
       // Interceptor
       api.defaults.headers.common['Authorization'] =
         'Bearer ' + (await firebaseUser.getIdToken());
+
+      // Load user data
       const userDataDB = await getUserData(firebaseUser.email || '');
       if (!userDataDB.firstName) {
         await authStore.logOut();
@@ -34,7 +38,21 @@ export const onAuthStateChanged = async (firebaseUser: User) => {
         message:
           'Unknown error occured while trying to login. Please try again',
       });
+      return;
+    } finally {
+      authStore.setLoading(false);
+    }
+
+    try {
+      // Fetch quizzes
+      await myQuizzesStore.fetchQuizzes();
+    } catch (err) {
+      console.error(err);
+
+      Notify.create({
+        type: 'negative',
+        message: 'Unknown error occured while fetching quizzes',
+      });
     }
   }
-  authStore.setLoading(false);
 };

@@ -15,9 +15,9 @@ export const getUserData = async (email: string): Promise<IUserDataDB> => {
   return { firstName: '', lastName: '' };
 };
 
-export const getMyQuizzes = async (): Promise<IQuiz> => {
+export const getMyQuizzes = async (): Promise<IQuiz[]> => {
   const response = await api.get(`${getBackendURL()}/api/auth/quizzes`);
-  return response.data;
+  return response.data as IQuiz[];
 };
 
 export const saveQuizData = async (

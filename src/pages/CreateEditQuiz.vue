@@ -63,6 +63,7 @@ import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { saveQuizData } from '../api';
 import { useAuthStore } from '../stores/auth';
+import { useMyQuizzesStore } from '../stores/myQuizzes';
 
 const authStore = useAuthStore();
 
@@ -75,6 +76,7 @@ const passMarkPercentageRef = ref();
 const generalError = ref('');
 const router = useRouter();
 const $q = useQuasar();
+const myQuizzesStore = useMyQuizzesStore();
 const loading = ref(false);
 const loadingAuth = computed(() => authStore.loading);
 
@@ -99,13 +101,29 @@ const saveQuiz = async () => {
       });
       return;
     }
+  } catch (err) {
+    console.error(err);
+
+    $q.notify({
+      type: 'negative',
+      message: 'Unknown error occured while trying to save quiz',
+    });
+    return;
+  } finally {
+    loading.value = false;
+  }
+
+  try {
+    loading.value = true;
+    // Fetch quizzes
+    await myQuizzesStore.fetchQuizzes();
     router.push('/my-quizzes');
   } catch (err) {
     console.error(err);
 
     $q.notify({
       type: 'negative',
-      message: 'Unknown error occured while trying to signup',
+      message: 'Unknown error occured while fetching quizzes',
     });
   } finally {
     loading.value = false;
