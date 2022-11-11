@@ -12,7 +12,7 @@
     <h3 class="text-h4 text-accent">My Quizzes</h3>
 
     <div class="q-gutter-md q-mt-md container-responsive">
-      <div v-if="loading">
+      <div v-if="loading" class="q-gutter-y-md">
         <q-skeleton height="20px" />
         <q-skeleton height="150px" />
         <q-skeleton height="20px" />
@@ -21,7 +21,7 @@
         <QuizOverview
           v-for="myQuiz in myQuizzes"
           :key="myQuiz"
-          :title="myQuiz.name"
+          :title="myQuiz.quizName"
           :description="myQuiz.description"
         />
         <p v-if="!loading && myQuizzes.length === 0">

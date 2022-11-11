@@ -17,7 +17,17 @@ export const getUserData = async (email: string): Promise<IUserDataDB> => {
 
 export const getMyQuizzes = async (): Promise<IQuiz[]> => {
   const response = await api.get(`${getBackendURL()}/api/auth/quizzes`);
-  return response.data as IQuiz[];
+  const quizzes: IQuiz[] = response.data.map((dataOne: any) => ({
+    quizName: dataOne.name,
+    description: dataOne.description,
+    passMarkPercentage: dataOne.pass_mark_percentage,
+    createdByUser: dataOne.created_by_user,
+    id: dataOne.id,
+    statusDB: dataOne.status,
+    questionOrder: dataOne.question_order,
+    lastUpdated: new Date(dataOne.last_updated),
+  }));
+  return quizzes;
 };
 
 export const saveQuizData = async (

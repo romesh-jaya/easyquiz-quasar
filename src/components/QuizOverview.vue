@@ -26,7 +26,7 @@ defineEmits(['click']);
 }
 
 .card-body {
-  padding: none !important;
+  padding: 0 !important;
   height: 72px;
 }
 </style>

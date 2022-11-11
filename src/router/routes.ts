@@ -43,6 +43,13 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/MyQuizzes.vue') }],
   },
   {
+    path: '/my-quizzes/:id',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/MyQuiz.vue'), props: true },
+    ],
+  },
+  {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
   },

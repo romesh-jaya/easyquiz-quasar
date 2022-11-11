@@ -5,6 +5,6 @@ export interface IQuiz {
   createdByUser: string;
   id: string;
   statusDB: string;
-  question_order?: string[];
-  last_updated: Date;
+  questionOrder?: string[];
+  lastUpdated: Date;
 }

@@ -31,14 +31,14 @@
       ref="passMarkPercentageRef"
       v-model="passMarkPercentage"
       outlined
-      label="Pass Mark Percentage"
+      label="Pass Mark %"
       :rules="[
         (val) => !!val || '* Required',
         (val) => val <= 100 || 'Please use a value less or equal to 100',
       ]"
       lazy-rules
       class="input-field"
-      onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+      @keypress="restrictChars($event)"
       @update:model-value="onFieldChange"
     />
     <q-btn
@@ -79,6 +79,14 @@ const $q = useQuasar();
 const myQuizzesStore = useMyQuizzesStore();
 const loading = ref(false);
 const loadingAuth = computed(() => authStore.loading);
+
+const restrictChars = ($event: KeyboardEvent) => {
+  if ($event.charCode >= 48 && $event.charCode <= 57) {
+    return true;
+  } else {
+    $event.preventDefault();
+  }
+};
 
 const saveQuiz = async () => {
   loading.value = true;
