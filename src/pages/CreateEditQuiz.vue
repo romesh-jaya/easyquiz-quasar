@@ -1,64 +1,73 @@
 <template>
-  <div class="text-center">
-    <h3 class="text-h4 text-accent">Create quiz</h3>
-    <q-input
-      ref="quizNameRef"
-      v-model="quizName"
-      outlined
-      label="Quiz Name"
-      :rules="[
-        (val) => !!val || '* Required',
-        (val) => val.length <= 16 || 'Please use maximum 16 characters',
-      ]"
-      lazy-rules
-      class="input-field"
-      @update:model-value="onFieldChange"
-    />
-    <q-input
-      ref="descriptionRef"
-      v-model="description"
-      outlined
-      label="Description"
-      :rules="[
-        (val) => !!val || '* Required',
-        (val) => val.length <= 250 || 'Please use maximum 250 characters',
-      ]"
-      lazy-rules
-      class="input-field"
-      @update:model-value="onFieldChange"
-    />
-    <q-input
-      ref="passMarkPercentageRef"
-      v-model="passMarkPercentage"
-      outlined
-      label="Pass Mark %"
-      :rules="[
-        (val) => !!val || '* Required',
-        (val) => val <= 100 || 'Please use a value less or equal to 100',
-      ]"
-      lazy-rules
-      class="input-field"
-      @keypress="restrictChars($event)"
-      @update:model-value="onFieldChange"
-    />
-    <q-btn
-      color="accent"
-      class="q-mt-md"
-      :loading="loading || loadingAuth"
-      @click="onSubmit"
-      >Create</q-btn
-    >
-    <div
-      v-if="generalError"
-      class="q-field__bottom q-mt-md q-mx-auto email-exists"
-    >
-      {{ generalError }}
+  <div class="text-center q-gutter-md q-mt-md container-responsive">
+    <div v-if="loadingAuth || loadingMyQuizzes" class="q-mt-xl q-gutter-y-md">
+      <q-skeleton height="20px" />
+      <q-skeleton height="150px" />
+      <q-skeleton height="20px" />
+    </div>
+    <div>
+      <h3 class="text-h4 text-accent">
+        {{ myQuizForEdit ? 'Edit quiz' : 'Create quiz' }}
+      </h3>
+      <q-input
+        ref="quizNameRef"
+        v-model="quizName"
+        outlined
+        label="Quiz Name"
+        :rules="[
+          (val) => !!val || '* Required',
+          (val) => val.length <= 16 || 'Please use maximum 16 characters',
+        ]"
+        lazy-rules
+        class="input-field"
+        @update:model-value="onFieldChange"
+      />
+      <q-input
+        ref="descriptionRef"
+        v-model="description"
+        outlined
+        label="Description"
+        :rules="[
+          (val) => !!val || '* Required',
+          (val) => val.length <= 250 || 'Please use maximum 250 characters',
+        ]"
+        lazy-rules
+        class="input-field"
+        @update:model-value="onFieldChange"
+      />
+      <q-input
+        ref="passMarkPercentageRef"
+        v-model="passMarkPercentage"
+        outlined
+        label="Pass Mark %"
+        :rules="[
+          (val) => !!val || '* Required',
+          (val) => val <= 100 || 'Please use a value less or equal to 100',
+        ]"
+        lazy-rules
+        class="input-field"
+        @keypress="restrictChars($event)"
+        @update:model-value="onFieldChange"
+      />
+      <q-btn
+        color="accent"
+        class="q-mt-md"
+        :loading="loading"
+        @click="onSubmit"
+        >{{ myQuizForEdit ? 'Save quiz' : 'Create' }}</q-btn
+      >
+      <div
+        v-if="generalError"
+        class="q-field__bottom q-mt-md q-mx-auto email-exists"
+      >
+        {{ generalError }}
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, toRefs, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { saveQuizData } from '../api';
@@ -66,19 +75,40 @@ import { useAuthStore } from '../stores/auth';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
 
 const authStore = useAuthStore();
-
-const quizName = ref('');
-const quizNameRef = ref();
-const description = ref('');
-const descriptionRef = ref();
-const passMarkPercentage = ref<number | null>(null);
-const passMarkPercentageRef = ref();
-const generalError = ref('');
+const myQuizzesStore = useMyQuizzesStore();
 const router = useRouter();
 const $q = useQuasar();
-const myQuizzesStore = useMyQuizzesStore();
+
+const props = defineProps({
+  id: { type: String, required: false, default: '' },
+});
+
+const { id } = toRefs(props);
+
+const myQuizForEdit = computed(() =>
+  myQuizzesStore.myQuizzes.find((quiz) => quiz.id === id.value)
+);
+
+const quizName = ref(myQuizForEdit.value?.quizName);
+const quizNameRef = ref();
+const description = ref(myQuizForEdit.value?.description);
+const descriptionRef = ref();
+const passMarkPercentage = ref<number | null | undefined>(
+  myQuizForEdit.value?.passMarkPercentage
+);
+const passMarkPercentageRef = ref();
+const generalError = ref('');
 const loading = ref(false);
 const loadingAuth = computed(() => authStore.loading);
+const loadingMyQuizzes = computed(() => myQuizzesStore.loading);
+
+watch(myQuizForEdit, () => {
+  if (myQuizForEdit.value) {
+    quizName.value = myQuizForEdit.value.quizName;
+    description.value = myQuizForEdit.value.description;
+    passMarkPercentage.value = myQuizForEdit.value.passMarkPercentage;
+  }
+});
 
 const restrictChars = ($event: KeyboardEvent) => {
   if ($event.charCode >= 48 && $event.charCode <= 57) {
@@ -93,9 +123,10 @@ const saveQuiz = async () => {
 
   try {
     const errorInfo = await saveQuizData(
-      quizName.value,
-      description.value,
-      passMarkPercentage.value || 0
+      quizName.value || '',
+      description.value || '',
+      passMarkPercentage.value || 0,
+      id.value
     );
 
     if (errorInfo.error) {

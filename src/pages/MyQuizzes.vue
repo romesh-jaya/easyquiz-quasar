@@ -20,6 +20,7 @@
       <div class="quiz-container">
         <QuizOverview
           v-for="myQuiz in myQuizzes"
+          :id="myQuiz.id"
           :key="myQuiz"
           :title="myQuiz.quizName"
           :description="myQuiz.description"
