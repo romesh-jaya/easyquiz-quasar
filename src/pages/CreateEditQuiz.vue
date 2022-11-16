@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center q-gutter-md q-mt-md container-responsive">
+  <PageContainerResponsive>
     <div v-if="loadingAuth || loadingMyQuizzes" class="q-mt-xl q-gutter-y-md">
       <q-skeleton height="20px" />
       <q-skeleton height="150px" />
@@ -63,7 +63,7 @@
         {{ generalError }}
       </div>
     </div>
-  </div>
+  </PageContainerResponsive>
 </template>
 
 <script setup lang="ts">
@@ -73,6 +73,7 @@ import { useQuasar } from 'quasar';
 import { saveQuizData } from '../api';
 import { useAuthStore } from '../stores/auth';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
+import PageContainerResponsive from '../components/PageContainerResponsive.vue';
 
 const authStore = useAuthStore();
 const myQuizzesStore = useMyQuizzesStore();

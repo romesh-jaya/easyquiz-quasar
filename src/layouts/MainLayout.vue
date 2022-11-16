@@ -65,7 +65,9 @@
       </q-toolbar>
     </q-header>
     <q-page-container>
-      <q-linear-progress v-if="loadingAuth" indeterminate />
+      <div class="linear-progress-container">
+        <q-linear-progress v-if="loadingAuth" indeterminate color="accent" />
+      </div>
       <router-view />
     </q-page-container>
   </q-layout>
@@ -112,5 +114,12 @@ const onLogout = async () => {
 .welcome {
   white-space: nowrap;
   overflow: hidden;
+}
+
+.linear-progress-container {
+  /* prevent CLS */
+  position: absolute;
+  width: 100%;
+  z-index: 1000;
 }
 </style>
