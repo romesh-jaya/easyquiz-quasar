@@ -1,6 +1,5 @@
 import { Notify } from 'quasar';
 import { getUserData } from '../api';
-import { api } from 'boot/axios';
 import { User } from 'firebase/auth';
 import { useAuthStore } from '../stores/auth';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
@@ -12,11 +11,8 @@ export const onAuthStateChanged = async (firebaseUser: User) => {
   if (firebaseUser) {
     authStore.setLoading(true);
     console.log('Firebase logged in: ', firebaseUser.email);
+    authStore.setQuizUser({ firebaseUser }); // This is needed for the interceptor to function correctly
     try {
-      // Interceptor
-      api.defaults.headers.common['Authorization'] =
-        'Bearer ' + (await firebaseUser.getIdToken());
-
       // Load user data
       const userDataDB = await getUserData(firebaseUser.email || '');
       if (!userDataDB.firstName) {

@@ -1,5 +1,6 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
+import { useAuthStore } from '../stores/auth';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -17,6 +18,16 @@ const api = axios.create();
 
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
+
+  // Interceptor must be here to get a fresh token if needed
+  api.interceptors.request.use(async (req) => {
+    const authStore = useAuthStore();
+    if (authStore.quizUser?.firebaseUser) {
+      const token = await authStore.quizUser.firebaseUser.getIdToken();
+      req.headers.Authorization = `Bearer ${token}`;
+    }
+    return req;
+  });
 
   app.config.globalProperties.$axios = axios;
   // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
