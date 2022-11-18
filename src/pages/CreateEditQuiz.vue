@@ -5,7 +5,7 @@
       <q-skeleton height="150px" />
       <q-skeleton height="20px" />
     </div>
-    <div>
+    <div v-else>
       <h3 class="text-h4 text-accent">
         {{ myQuizForEdit ? 'Edit quiz' : 'Create quiz' }}
       </h3>

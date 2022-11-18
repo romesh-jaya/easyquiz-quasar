@@ -14,7 +14,7 @@
           <div class="q-pa-md">
             <div class="text-body2 q-pa-xs text-left flex">
               <span class="attribute-label">Last Updated:</span>
-              {{ myQuiz.lastUpdated.toLocaleString() }}
+              {{ getLastUpdatedHumanized() }}
             </div>
             <div class="text-body2 q-pa-xs text-left flex">
               <span class="attribute-label">Pass Mark Percentage: </span
@@ -23,7 +23,7 @@
             <div class="text-body2 q-pa-xs text-left flex">
               <span class="attribute-label">Status: </span
               >{{
-                QuizStatus.find((status) => status.dbValue === myQuiz.statusDB)
+                QuizStatus.find((status) => status.dbValue === myQuiz?.statusDB)
                   ?.clientValue
               }}
             </div>
@@ -42,9 +42,10 @@
   </PageContainerResponsive>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, toRefs } from 'vue';
 import { useRouter } from 'vue-router';
+import humanizeDuration from 'humanize-duration';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
 import { QuizStatus } from '../constants/QuizStatus';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
@@ -61,6 +62,27 @@ const myQuiz = computed(() =>
   myQuizzesStore.myQuizzes.find((quiz) => quiz.id === id.value)
 );
 const loading = computed(() => myQuizzesStore.loading);
+
+const getLastUpdatedHumanized = () => {
+  let timeDiffMs: number;
+  let durationHumanFriendly = 'unknown';
+  let lastRefreshedText = '';
+
+  if (myQuiz.value && myQuiz.value.lastUpdated) {
+    timeDiffMs = new Date().getTime() - myQuiz.value.lastUpdated.getTime();
+    if (timeDiffMs / 1000 < 60) {
+      // in the last minute
+      lastRefreshedText = 'Just now';
+    } else {
+      durationHumanFriendly = humanizeDuration(timeDiffMs, {
+        largest: 1,
+      });
+      lastRefreshedText = `${durationHumanFriendly} ago`;
+    }
+  }
+
+  return lastRefreshedText;
+};
 
 const onEditQuiz = () => {
   router.push(`/create-edit-quiz/${id.value}`);
