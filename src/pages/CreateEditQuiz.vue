@@ -46,7 +46,7 @@
         ]"
         lazy-rules
         class="input-field"
-        @keypress="restrictChars($event)"
+        mask="###"
         @update:model-value="onFieldChange"
       />
       <div class="q-mt-md button-container">
@@ -109,14 +109,6 @@ watch(myQuizForEdit, () => {
     passMarkPercentage.value = myQuizForEdit.value.passMarkPercentage;
   }
 });
-
-const restrictChars = ($event: KeyboardEvent) => {
-  if ($event.charCode >= 48 && $event.charCode <= 57) {
-    return true;
-  } else {
-    $event.preventDefault();
-  }
-};
 
 const saveQuiz = async () => {
   loading.value = true;
