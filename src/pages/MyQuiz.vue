@@ -30,7 +30,7 @@
           </div>
         </q-card-section>
       </q-card>
-      <q-btn color="accent" class="q-my-lg" @click="onEditQuiz"
+      <q-btn color="secondary" class="q-my-lg" @click="onEditQuiz"
         >Edit Quiz Details</q-btn
       >
     </div>

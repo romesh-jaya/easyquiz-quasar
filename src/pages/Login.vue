@@ -28,7 +28,11 @@
       class="input-field"
       @update:model-value="onFieldChange"
     />
-    <q-btn color="accent" class="q-mt-md" :loading="loading" @click="onSubmit"
+    <q-btn
+      color="secondary"
+      class="q-mt-md"
+      :loading="loading"
+      @click="onSubmit"
       >Login</q-btn
     >
     <p class="q-mt-md text-center text-body2">

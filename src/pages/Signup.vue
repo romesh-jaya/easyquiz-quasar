@@ -39,7 +39,11 @@
       ref="passwordWithConfirmRef"
       @password-update="onFieldChange"
     />
-    <q-btn color="accent" class="q-mt-md" :loading="loading" @click="onSubmit"
+    <q-btn
+      color="secondary"
+      class="q-mt-md"
+      :loading="loading"
+      @click="onSubmit"
       >Create</q-btn
     >
     <div

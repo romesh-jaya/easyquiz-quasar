@@ -49,13 +49,12 @@
         @keypress="restrictChars($event)"
         @update:model-value="onFieldChange"
       />
-      <q-btn
-        color="accent"
-        class="q-mt-md"
-        :loading="loading"
-        @click="onSubmit"
-        >{{ myQuizForEdit ? 'Save quiz' : 'Create' }}</q-btn
-      >
+      <div class="q-mt-md button-container">
+        <q-btn color="secondary" :loading="loading" @click="onSubmit">{{
+          myQuizForEdit ? 'Save quiz' : 'Create'
+        }}</q-btn>
+        <q-btn color="accent" @click="$router.go(-1)">Back</q-btn>
+      </div>
       <div
         v-if="generalError"
         class="q-field__bottom q-mt-md q-mx-auto email-exists"
@@ -190,4 +189,10 @@ const onFieldChange = () => {
 };
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+.button-container {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+</style>

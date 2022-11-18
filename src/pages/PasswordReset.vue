@@ -14,8 +14,10 @@
       @update:model-value="onFieldChange"
     />
     <div class="q-mt-md">
-      <q-btn color="accent" @click="onSubmit">Send Password Reset email</q-btn>
-      <q-btn color="secondary" class="q-ml-md" @click="router.push('/login')"
+      <q-btn color="secondary" @click="onSubmit"
+        >Send Password Reset email</q-btn
+      >
+      <q-btn color="accent" class="q-ml-md" @click="router.push('/login')"
         >Back to Login</q-btn
       >
     </div>
