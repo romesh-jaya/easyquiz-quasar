@@ -19,6 +19,11 @@ $icon-filter-white: invert(100%) sepia(2%) saturate(7444%) hue-rotate(290deg)
   margin: auto;
 }
 
+.input-textarea {
+  max-width: $xl-screen;
+  margin: auto;
+}
+
 .email-exists {
   max-width: 300px;
   color: var(--q-negative);

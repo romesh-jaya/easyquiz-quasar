@@ -65,6 +65,17 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: '/my-quizzes/:quizId/create-edit-question',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/CreateEditQuestion.vue'),
+        props: true,
+      },
+    ],
+  },
+  {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
   },

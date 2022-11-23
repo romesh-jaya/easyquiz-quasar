@@ -1,9 +1,6 @@
 <template>
-  <q-card class="my-card">
-    <q-card-section
-      class="bg-secondary text-white q-pa-xs"
-      @click="onCardClicked"
-    >
+  <q-card class="my-card" @click="onCardClicked">
+    <q-card-section class="bg-secondary text-white q-pa-xs">
       <div class="text-h6">{{ title }}</div>
     </q-card-section>
     <q-separator />
