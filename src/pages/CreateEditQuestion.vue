@@ -28,6 +28,21 @@
         class="input-textarea"
         type="textarea"
       />
+      <div>
+        <SortableVue
+          :list="answersList"
+          item-key="answer"
+          tag="div"
+          :options="sortableOptions"
+          @end="onOrderChanged"
+        >
+          <template #item="{ element }">
+            <div :key="element.answer" class="draggable q-mt-md q-pa-sm">
+              {{ element.answer }}
+            </div>
+          </template>
+        </SortableVue>
+      </div>
       <div class="q-mt-md button-container">
         <q-btn color="secondary" :loading="loading" @click="onSubmit">{{
           myQuizForEdit ? 'Save question' : 'Create'
@@ -45,11 +60,18 @@
 
 <script setup lang="ts">
 import { ref, computed, toRefs } from 'vue';
+import { Sortable as SortableVue } from 'sortablejs-vue3';
 // import { useRouter } from 'vue-router';
 //import { useQuasar } from 'quasar';
+import type { SortableOptions } from 'sortablejs';
+import Sortable from 'sortablejs';
 import { useAuthStore } from '../stores/auth';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
+
+interface IAnswer {
+  answer: string;
+}
 
 const authStore = useAuthStore();
 const myQuizzesStore = useMyQuizzesStore();
@@ -68,6 +90,11 @@ const myQuizForEdit = computed(() =>
 
 const questionContent = ref(myQuizForEdit.value?.quizName);
 const questionContentRef = ref();
+const answersList = ref([
+  { answer: 'red' },
+  { answer: 'blue' },
+  { answer: 'green' },
+]);
 const loading = ref(false);
 const loadingAuth = computed(() => authStore.loading);
 const loadingMyQuizzes = computed(() => myQuizzesStore.loading);
@@ -81,6 +108,24 @@ watch(myQuizForEdit, () => {
   }
 });
 */
+
+const sortableOptions = computed<SortableOptions>(() => {
+  return {
+    draggable: '.draggable',
+    ghostClass: 'ghost',
+    dragClass: 'drag',
+  };
+});
+
+const moveItemInArray = (array: IAnswer[], from: number, to: number) => {
+  const item = array.splice(from, 1)[0];
+  array.splice(to, 0, item);
+};
+
+const onOrderChanged = (event: Sortable.SortableEvent) => {
+  // Have to manually move the items in the array according to https://github.com/MaxLeiter/sortablejs-vue3
+  moveItemInArray(answersList.value, event.oldIndex || 0, event.newIndex || 0);
+};
 
 const onSubmit = () => {
   questionContentRef.value.validate();
@@ -97,5 +142,24 @@ const onSubmit = () => {
   display: flex;
   gap: 20px;
   justify-content: center;
+}
+
+.draggable {
+  text-align: left;
+  border: 1px solid #ccc;
+  cursor: move;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ghost {
+  opacity: 0.5;
+  background: #fff;
+  border: 1px dashed #ccc;
+}
+
+.drag {
+  background: var(--q-primary);
 }
 </style>

@@ -22,6 +22,8 @@
     "humanize-duration": "^3.27.3",
     "pinia": "^2.0.11",
     "quasar": "^2.6.0",
+    "sortablejs": "^1.15.0",
+    "sortablejs-vue3": "^1.2.3",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0",
     "vue-snip": "^2.0.0"
@@ -30,6 +32,7 @@
     "@quasar/app-vite": "^1.0.0",
     "@types/humanize-duration": "^3.27.1",
     "@types/node": "^12.20.21",
+    "@types/sortablejs": "^1.15.0",
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
     "@vue/eslint-config-typescript": "^11.0.1",
