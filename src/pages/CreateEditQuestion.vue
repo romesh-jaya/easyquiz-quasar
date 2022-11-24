@@ -28,7 +28,15 @@
         class="input-textarea"
         type="textarea"
       />
-      <div>
+      <div class="q-mt-md q-mb-lg button-container">
+        <q-btn color="secondary" :loading="loading" @click="onSubmit">{{
+          myQuizForEdit ? 'Save question' : 'Create'
+        }}</q-btn>
+        <q-btn color="accent" @click="$router.go(-1)">Back</q-btn>
+      </div>
+      <q-separator />
+      <h3 class="text-h5 text-accent">Answers</h3>
+      <div v-if="answerSortMode">
         <SortableVue
           :list="answersList"
           item-key="answer"
@@ -43,11 +51,18 @@
           </template>
         </SortableVue>
       </div>
-      <div class="q-mt-md button-container">
-        <q-btn color="secondary" :loading="loading" @click="onSubmit">{{
-          myQuizForEdit ? 'Save question' : 'Create'
-        }}</q-btn>
-        <q-btn color="accent" @click="$router.go(-1)">Back</q-btn>
+      <div v-else>
+        <q-input
+          v-for="(item, index) in answersList"
+          :key="index"
+          :ref="answersListRef[index]"
+          v-model="item.answer"
+          outlined
+          :label="'Answer ' + (index + 1)"
+          :rules="[(val) => !!val || '* Required']"
+          lazy-rules
+          class="input-textarea"
+        />
       </div>
     </div>
     <div v-else>
@@ -95,6 +110,8 @@ const answersList = ref([
   { answer: 'blue' },
   { answer: 'green' },
 ]);
+const answersListRef = ref([]);
+const answerSortMode = ref(false);
 const loading = ref(false);
 const loadingAuth = computed(() => authStore.loading);
 const loadingMyQuizzes = computed(() => myQuizzesStore.loading);
