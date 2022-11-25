@@ -52,17 +52,32 @@
         </SortableVue>
       </div>
       <div v-else>
-        <q-input
+        <div
           v-for="(item, index) in answersList"
           :key="index"
-          :ref="answersListRef[index]"
-          v-model="item.answer"
-          outlined
-          :label="'Answer ' + (index + 1)"
-          :rules="[(val) => !!val || '* Required']"
-          lazy-rules
-          class="input-textarea"
-        />
+          class="input-textarea answer-container q-my-lg"
+        >
+          <q-input
+            ref="answersListRef"
+            v-model="item.answer"
+            outlined
+            :label="'Answer ' + (index + 1)"
+            :rules="[(val) => !!val || '* Required']"
+            lazy-rules
+            class="answer"
+          />
+          <q-btn flat dense round>
+            <q-icon
+              size="1.5em"
+              name="close"
+              class="close-icon"
+              @click="() => onAnswerRemove(index)"
+            />
+          </q-btn>
+        </div>
+        <div class="q-my-lg button-container">
+          <q-btn color="secondary" @click="onAddAnswer">Add Answer</q-btn>
+        </div>
       </div>
     </div>
     <div v-else>
@@ -76,6 +91,7 @@
 <script setup lang="ts">
 import { ref, computed, toRefs } from 'vue';
 import { Sortable as SortableVue } from 'sortablejs-vue3';
+import { QInput } from 'quasar';
 // import { useRouter } from 'vue-router';
 //import { useQuasar } from 'quasar';
 import type { SortableOptions } from 'sortablejs';
@@ -105,12 +121,8 @@ const myQuizForEdit = computed(() =>
 
 const questionContent = ref(myQuizForEdit.value?.quizName);
 const questionContentRef = ref();
-const answersList = ref([
-  { answer: 'red' },
-  { answer: 'blue' },
-  { answer: 'green' },
-]);
-const answersListRef = ref([]);
+const answersList = ref<IAnswer[]>([]);
+const answersListRef = ref<QInput[]>([]);
 const answerSortMode = ref(false);
 const loading = ref(false);
 const loadingAuth = computed(() => authStore.loading);
@@ -144,8 +156,18 @@ const onOrderChanged = (event: Sortable.SortableEvent) => {
   moveItemInArray(answersList.value, event.oldIndex || 0, event.newIndex || 0);
 };
 
+const onAnswerRemove = (index: number) => {
+  answersList.value.splice(index, 1);
+};
+
+const onAddAnswer = () => {
+  answersList.value.push({ answer: '' });
+};
+
 const onSubmit = () => {
   questionContentRef.value.validate();
+  console.log('answersListRef.value', answersListRef.value);
+  answersListRef.value.forEach((answerRef) => answerRef.validate());
 
   if (questionContentRef.value.hasError) {
     return;
@@ -178,5 +200,20 @@ const onSubmit = () => {
 
 .drag {
   background: var(--q-primary);
+}
+
+.close-icon {
+  padding: 12px;
+  cursor: pointer;
+}
+
+.answer-container {
+  display: flex;
+  place-items: center;
+}
+
+.answer {
+  flex: 1;
+  padding-bottom: 0 !important;
 }
 </style>
