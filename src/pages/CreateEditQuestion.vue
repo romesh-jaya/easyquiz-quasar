@@ -36,6 +36,11 @@
       </div>
       <q-separator />
       <h3 class="text-h5 text-accent">Answers</h3>
+      <q-toggle
+        v-model="answerSortMode"
+        label="Sort answers mode"
+        @update:model-value="onSortAnswerToggle"
+      />
       <div v-if="answerSortMode">
         <SortableVue
           :list="answersList"
@@ -44,10 +49,14 @@
           :options="sortableOptions"
           @end="onOrderChanged"
         >
-          <template #item="{ element }">
-            <div :key="element.answer" class="draggable q-mt-md q-pa-sm">
-              {{ element.answer }}
-            </div>
+          <template #item="{ element, index }">
+            <q-input
+              v-model="element.answer"
+              filled
+              readonly
+              :label="'Answer ' + (index + 1)"
+              class="draggable q-my-lg"
+            />
           </template>
         </SortableVue>
       </div>
@@ -121,7 +130,7 @@ const myQuizForEdit = computed(() =>
 
 const questionContent = ref(myQuizForEdit.value?.quizName);
 const questionContentRef = ref();
-const answersList = ref<IAnswer[]>([]);
+const answersList = ref<IAnswer[]>([{ answer: '' }, { answer: '' }]);
 const answersListRef = ref<QInput[]>([]);
 const answerSortMode = ref(false);
 const loading = ref(false);
@@ -156,6 +165,19 @@ const onOrderChanged = (event: Sortable.SortableEvent) => {
   moveItemInArray(answersList.value, event.oldIndex || 0, event.newIndex || 0);
 };
 
+const doAnswersHaveErrors = () => {
+  answersListRef.value.forEach((answerRef) => answerRef.validate());
+  return answersListRef.value.find((answerRef) => answerRef.hasError);
+};
+
+const onSortAnswerToggle = (isToggleOn: boolean) => {
+  if (isToggleOn) {
+    if (doAnswersHaveErrors()) {
+      answerSortMode.value = false;
+    }
+  }
+};
+
 const onAnswerRemove = (index: number) => {
   answersList.value.splice(index, 1);
 };
@@ -166,10 +188,7 @@ const onAddAnswer = () => {
 
 const onSubmit = () => {
   questionContentRef.value.validate();
-  console.log('answersListRef.value', answersListRef.value);
-  answersListRef.value.forEach((answerRef) => answerRef.validate());
-
-  if (questionContentRef.value.hasError) {
+  if (questionContentRef.value.hasError || doAnswersHaveErrors()) {
     return;
   }
   // saveQuiz();
@@ -184,9 +203,9 @@ const onSubmit = () => {
 }
 
 .draggable {
-  text-align: left;
-  border: 1px solid #ccc;
-  cursor: move;
+  input {
+    cursor: move !important;
+  }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
