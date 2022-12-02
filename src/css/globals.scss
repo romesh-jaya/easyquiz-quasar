@@ -31,3 +31,9 @@ $icon-filter-white: invert(100%) sepia(2%) saturate(7444%) hue-rotate(290deg)
   color: var(--q-negative);
   padding: 0 !important;
 }
+
+.button-container {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}

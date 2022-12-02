@@ -5,11 +5,13 @@
       <q-skeleton height="150px" />
       <q-skeleton height="20px" />
     </div>
-    <div v-else-if="myQuiz">
-      <h3 class="text-h4 text-accent">{{ myQuiz.quizName }}</h3>
+    <div v-else-if="myQuizWithDetails">
+      <h3 class="text-h4 text-accent">{{ myQuizWithDetails.quizName }}</h3>
       <q-card>
         <q-card-section class="q-pa-xs">
-          <div class="text-body2 q-pa-md">{{ myQuiz.description }}</div>
+          <div class="text-body2 q-pa-md">
+            {{ myQuizWithDetails.description }}
+          </div>
           <q-separator />
           <div class="q-pa-md">
             <div class="text-body2 q-pa-xs text-left flex">
@@ -18,35 +20,37 @@
             </div>
             <div class="text-body2 q-pa-xs text-left flex">
               <span class="attribute-label">Pass Mark Percentage: </span
-              >{{ myQuiz.passMarkPercentage }}%
+              >{{ myQuizWithDetails.passMarkPercentage }}%
             </div>
             <div class="text-body2 q-pa-xs text-left flex">
               <span class="attribute-label">Status: </span
               >{{
-                QuizStatus.find((status) => status.dbValue === myQuiz?.statusDB)
-                  ?.clientValue
+                QuizStatus.find(
+                  (status) => status.dbValue === myQuizWithDetails?.statusDB
+                )?.clientValue
               }}
             </div>
           </div>
         </q-card-section>
       </q-card>
-      <q-btn color="secondary" class="q-my-lg" @click="onEditQuiz"
-        >Edit Quiz Details</q-btn
-      >
+      <div class="q-my-lg button-container">
+        <q-btn color="secondary" @click="onEditQuiz">Edit Quiz Details</q-btn>
+        <q-btn @click="onAddQuestion">Add Question</q-btn>
+      </div>
     </div>
     <div v-else>
       <div class="q-mt-xl">
-        <p>Quiz not found</p>
+        <p>{{ error ?? 'Quiz not found' }}</p>
       </div>
     </div>
   </PageContainerResponsive>
 </template>
 
 <script setup lang="ts">
-import { computed, toRefs } from 'vue';
+import { computed, toRefs, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import humanizeDuration from 'humanize-duration';
-import { useMyQuizzesStore } from '../stores/myQuizzes';
+import { useMyQuizWithDetailsStore } from '../stores/myQuizWithDetails';
 import { QuizStatus } from '../constants/QuizStatus';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
 
@@ -57,19 +61,30 @@ const props = defineProps({
 const { id } = toRefs(props);
 
 const router = useRouter();
-const myQuizzesStore = useMyQuizzesStore();
-const myQuiz = computed(() =>
-  myQuizzesStore.myQuizzes.find((quiz) => quiz.id === id.value)
+const myQuizWithDetailsStore = useMyQuizWithDetailsStore();
+const myQuizWithDetails = computed(
+  () => myQuizWithDetailsStore.myQuizWithDetails
 );
-const loading = computed(() => myQuizzesStore.loading);
+const loading = computed(() => myQuizWithDetailsStore.loading);
+const error = ref('');
+
+const fetchQuizWithDetails = async () => {
+  try {
+    await myQuizWithDetailsStore.fetchQuiz(id.value);
+  } catch (err) {
+    console.error(err);
+    error.value = 'Error loading quiz';
+  }
+};
 
 const getLastUpdatedHumanized = () => {
   let timeDiffMs: number;
   let durationHumanFriendly = 'unknown';
   let lastRefreshedText = '';
 
-  if (myQuiz.value && myQuiz.value.lastUpdated) {
-    timeDiffMs = new Date().getTime() - myQuiz.value.lastUpdated.getTime();
+  if (myQuizWithDetails.value && myQuizWithDetails.value.lastUpdated) {
+    timeDiffMs =
+      new Date().getTime() - myQuizWithDetails.value.lastUpdated.getTime();
     if (timeDiffMs / 1000 < 60) {
       // in the last minute
       lastRefreshedText = 'Just now';
@@ -87,6 +102,14 @@ const getLastUpdatedHumanized = () => {
 const onEditQuiz = () => {
   router.push(`/create-edit-quiz/${id.value}`);
 };
+
+const onAddQuestion = () => {
+  router.push(`${router.currentRoute.value.path}/create-edit-question`);
+};
+
+onMounted(() => {
+  fetchQuizWithDetails();
+});
 </script>
 
 <style lang="scss">

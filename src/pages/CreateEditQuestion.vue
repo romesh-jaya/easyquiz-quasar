@@ -22,7 +22,7 @@
         label="Question Content"
         :rules="[
           (val) => !!val || '* Required',
-          (val) => val.length <= 16 || 'Please use maximum 1000 characters',
+          (val) => val.length <= 1000 || 'Please use maximum 1000 characters',
         ]"
         lazy-rules
         class="input-textarea"
@@ -75,6 +75,11 @@
             lazy-rules
             class="answer"
           />
+          <q-toggle
+            v-model="item.isCorrect"
+            label="Correct answer"
+            :indeterminate-value="false"
+          />
           <q-btn flat dense round>
             <q-icon
               size="1.5em"
@@ -102,21 +107,19 @@ import { ref, computed, toRefs } from 'vue';
 import { Sortable as SortableVue } from 'sortablejs-vue3';
 import { QInput } from 'quasar';
 // import { useRouter } from 'vue-router';
-//import { useQuasar } from 'quasar';
+import { useQuasar } from 'quasar';
 import type { SortableOptions } from 'sortablejs';
 import Sortable from 'sortablejs';
 import { useAuthStore } from '../stores/auth';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
-
-interface IAnswer {
-  answer: string;
-}
+import { saveQuestionData } from '../api';
+import { IAnswer } from '../interfaces/IAnswer';
 
 const authStore = useAuthStore();
 const myQuizzesStore = useMyQuizzesStore();
 // const router = useRouter();
-//const $q = useQuasar();
+const $q = useQuasar();
 
 const props = defineProps({
   quizId: { type: String, required: false, default: '' },
@@ -130,7 +133,10 @@ const myQuizForEdit = computed(() =>
 
 const questionContent = ref(myQuizForEdit.value?.quizName);
 const questionContentRef = ref();
-const answersList = ref<IAnswer[]>([{ answer: '' }, { answer: '' }]);
+const answersList = ref<IAnswer[]>([
+  { answer: '', isCorrect: false },
+  { answer: '', isCorrect: false },
+]);
 const answersListRef = ref<QInput[]>([]);
 const answerSortMode = ref(false);
 const loading = ref(false);
@@ -183,7 +189,54 @@ const onAnswerRemove = (index: number) => {
 };
 
 const onAddAnswer = () => {
-  answersList.value.push({ answer: '' });
+  answersList.value.push({ answer: '', isCorrect: false });
+};
+
+const saveQuestion = async () => {
+  loading.value = true;
+
+  try {
+    const errorInfo = await saveQuestionData(
+      quizId.value || '',
+      questionContent.value || '',
+      JSON.stringify(answersList.value) || ''
+    );
+
+    if (errorInfo.error) {
+      $q.notify({
+        type: 'negative',
+        message: errorInfo.error,
+      });
+    }
+  } catch (err) {
+    console.error(err);
+
+    $q.notify({
+      type: 'negative',
+      message: 'Unknown error occured while trying to save Question',
+    });
+    return;
+  } finally {
+    loading.value = false;
+  }
+
+  /*
+  try {
+    loading.value = true;
+    // Fetch quizzes
+    await myQuizzesStore.fetchQuizzes();
+    router.push('/my-quizzes');
+  } catch (err) {
+    console.error(err);
+
+    $q.notify({
+      type: 'negative',
+      message: 'Unknown error occured while fetching quizzes',
+    });
+  } finally {
+    loading.value = false;
+  }
+  */
 };
 
 const onSubmit = () => {
@@ -191,24 +244,18 @@ const onSubmit = () => {
   if (questionContentRef.value.hasError || doAnswersHaveErrors()) {
     return;
   }
-  // saveQuiz();
+  saveQuestion();
 };
 </script>
 
 <style lang="scss">
-.button-container {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-}
-
 .draggable {
   input {
     cursor: move !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .ghost {

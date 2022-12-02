@@ -181,10 +181,4 @@ const onFieldChange = () => {
 };
 </script>
 
-<style lang="scss">
-.button-container {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-}
-</style>
+<style lang="scss"></style>
