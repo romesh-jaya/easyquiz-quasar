@@ -35,7 +35,25 @@
       </q-card>
       <div class="q-my-lg button-container">
         <q-btn color="secondary" @click="onEditQuiz">Edit Quiz Details</q-btn>
-        <q-btn @click="onAddQuestion">Add Question</q-btn>
+      </div>
+      <q-separator />
+      <h3 class="text-h5 text-accent">Questions</h3>
+      <div
+        v-for="(item, index) in myQuizWithDetails.questions"
+        :key="index"
+        class="input-textarea question-container q-my-lg"
+      >
+        <q-input
+          v-model="item.questionContent"
+          outlined
+          :label="'Question ' + (index + 1)"
+          class="question"
+          readonly
+          @click="onEditQuestion(item.id)"
+        />
+      </div>
+      <div class="q-my-lg button-container">
+        <q-btn color="secondary" @click="onAddQuestion">Add Question</q-btn>
       </div>
     </div>
     <div v-else>
@@ -103,6 +121,12 @@ const onEditQuiz = () => {
   router.push(`/create-edit-quiz/${id.value}`);
 };
 
+const onEditQuestion = (questionId: string) => {
+  router.push(
+    `${router.currentRoute.value.path}/create-edit-question/${questionId}`
+  );
+};
+
 const onAddQuestion = () => {
   router.push(`${router.currentRoute.value.path}/create-edit-question`);
 };
@@ -116,5 +140,21 @@ onMounted(() => {
 .attribute-label {
   width: 200px;
   display: inline-block;
+}
+
+.question-container {
+  display: flex;
+  place-items: center;
+}
+
+.question {
+  flex: 1;
+  padding-bottom: 0 !important;
+  input {
+    cursor: pointer !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 </style>

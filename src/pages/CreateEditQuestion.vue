@@ -1,18 +1,18 @@
 <template>
   <PageContainerResponsive>
-    <div v-if="loadingAuth || loadingMyQuizzes" class="q-mt-xl q-gutter-y-md">
+    <div v-if="loading" class="q-mt-xl q-gutter-y-md">
       <q-skeleton height="20px" />
       <q-skeleton height="150px" />
       <q-skeleton height="20px" />
     </div>
-    <div v-else-if="myQuizForEdit">
+    <div v-else-if="myQuizWithDetails">
       <q-breadcrumbs class="q-my-lg">
         <template #separator>
           <q-icon size="1.5em" name="chevron_right" color="primary" />
         </template>
-        <q-breadcrumbs-el :label="myQuizForEdit.quizName" />
+        <q-breadcrumbs-el :label="myQuizWithDetails.quizName" />
         <q-breadcrumbs-el
-          :label="myQuizForEdit ? 'Edit question' : 'Create question'"
+          :label="questionId ? 'Edit question' : 'Create question'"
         />
       </q-breadcrumbs>
       <q-input
@@ -29,8 +29,8 @@
         type="textarea"
       />
       <div class="q-mt-md q-mb-lg button-container">
-        <q-btn color="secondary" :loading="loading" @click="onSubmit">{{
-          myQuizForEdit ? 'Save question' : 'Create'
+        <q-btn color="secondary" :loading="saving" @click="onSubmit">{{
+          questionId ? 'Save question' : 'Create'
         }}</q-btn>
         <q-btn color="accent" @click="$router.go(-1)">Back</q-btn>
       </div>
@@ -96,62 +96,71 @@
     </div>
     <div v-else>
       <div class="q-mt-xl">
-        <p>Quiz not found</p>
+        <p>{{ error ?? 'Quiz not found' }}</p>
       </div>
     </div>
   </PageContainerResponsive>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, toRefs } from 'vue';
+import { ref, computed, toRefs, onMounted, watch } from 'vue';
 import { Sortable as SortableVue } from 'sortablejs-vue3';
 import { QInput } from 'quasar';
 // import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import type { SortableOptions } from 'sortablejs';
 import Sortable from 'sortablejs';
-import { useAuthStore } from '../stores/auth';
-import { useMyQuizzesStore } from '../stores/myQuizzes';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
 import { saveQuestionData } from '../api';
 import { IAnswer } from '../interfaces/IAnswer';
+import { useMyQuizWithDetailsStore } from '../stores/myQuizWithDetails';
 
-const authStore = useAuthStore();
-const myQuizzesStore = useMyQuizzesStore();
 // const router = useRouter();
 const $q = useQuasar();
 
 const props = defineProps({
   quizId: { type: String, required: false, default: '' },
+  questionId: { type: String, required: false, default: '' },
 });
 
-const { quizId } = toRefs(props);
-
-const myQuizForEdit = computed(() =>
-  myQuizzesStore.myQuizzes.find((quiz) => quiz.id === quizId.value)
+const { quizId, questionId } = toRefs(props);
+const myQuizWithDetailsStore = useMyQuizWithDetailsStore();
+const myQuizWithDetails = computed(
+  () => myQuizWithDetailsStore.myQuizWithDetails
 );
+const questionMatched = myQuizWithDetails.value?.questions.find(
+  (question) => question.id === questionId.value
+);
+const loading = computed(() => myQuizWithDetailsStore.loading);
+const saving = ref(false);
+const error = ref('');
 
-const questionContent = ref(myQuizForEdit.value?.quizName);
+const questionContent = ref(
+  questionMatched ? questionMatched.questionContent : ''
+);
 const questionContentRef = ref();
-const answersList = ref<IAnswer[]>([
-  { answer: '', isCorrect: false },
-  { answer: '', isCorrect: false },
-]);
+const answersList = ref<IAnswer[]>(
+  questionMatched
+    ? questionMatched.answers
+    : [
+        { answer: '', isCorrect: false },
+        { answer: '', isCorrect: false },
+      ]
+);
 const answersListRef = ref<QInput[]>([]);
 const answerSortMode = ref(false);
-const loading = ref(false);
-const loadingAuth = computed(() => authStore.loading);
-const loadingMyQuizzes = computed(() => myQuizzesStore.loading);
 
-/*
-watch(myQuizForEdit, () => {
-  if (myQuizForEdit.value) {
-    quizName.value = myQuizForEdit.value.quizName;
-    description.value = myQuizForEdit.value.description;
-    passMarkPercentage.value = myQuizForEdit.value.passMarkPercentage;
+watch(myQuizWithDetails, () => {
+  if (myQuizWithDetails.value) {
+    const questionMatched = myQuizWithDetails.value.questions.find(
+      (question) => question.id === questionId.value
+    );
+    if (questionMatched) {
+      questionContent.value = questionMatched.questionContent;
+      answersList.value = questionMatched.answers;
+    }
   }
 });
-*/
 
 const sortableOptions = computed<SortableOptions>(() => {
   return {
@@ -193,7 +202,7 @@ const onAddAnswer = () => {
 };
 
 const saveQuestion = async () => {
-  loading.value = true;
+  saving.value = true;
 
   try {
     const errorInfo = await saveQuestionData(
@@ -217,12 +226,12 @@ const saveQuestion = async () => {
     });
     return;
   } finally {
-    loading.value = false;
+    saving.value = false;
   }
 
   /*
   try {
-    loading.value = true;
+    saving.value = true;
     // Fetch quizzes
     await myQuizzesStore.fetchQuizzes();
     router.push('/my-quizzes');
@@ -234,9 +243,20 @@ const saveQuestion = async () => {
       message: 'Unknown error occured while fetching quizzes',
     });
   } finally {
-    loading.value = false;
+    saving.value = false;
   }
   */
+};
+
+const fetchQuizWithDetails = async () => {
+  if (quizId.value) {
+    try {
+      await myQuizWithDetailsStore.fetchQuiz(quizId.value);
+    } catch (err) {
+      console.error(err);
+      error.value = 'Error loading quiz';
+    }
+  }
 };
 
 const onSubmit = () => {
@@ -246,6 +266,10 @@ const onSubmit = () => {
   }
   saveQuestion();
 };
+
+onMounted(() => {
+  fetchQuizWithDetails();
+});
 </script>
 
 <style lang="scss">

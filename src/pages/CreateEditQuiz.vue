@@ -1,6 +1,6 @@
 <template>
   <PageContainerResponsive>
-    <div v-if="loadingAuth || loadingMyQuizzes" class="q-mt-xl q-gutter-y-md">
+    <div v-if="loadingMyQuizzes" class="q-mt-xl q-gutter-y-md">
       <q-skeleton height="20px" />
       <q-skeleton height="150px" />
       <q-skeleton height="20px" />
@@ -70,11 +70,9 @@ import { ref, computed, toRefs, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { saveQuizData } from '../api';
-import { useAuthStore } from '../stores/auth';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
 
-const authStore = useAuthStore();
 const myQuizzesStore = useMyQuizzesStore();
 const router = useRouter();
 const $q = useQuasar();
@@ -99,7 +97,6 @@ const passMarkPercentage = ref<number | null | undefined>(
 const passMarkPercentageRef = ref();
 const generalError = ref('');
 const loading = ref(false);
-const loadingAuth = computed(() => authStore.loading);
 const loadingMyQuizzes = computed(() => myQuizzesStore.loading);
 
 watch(myQuizForEdit, () => {

@@ -15,12 +15,14 @@ export const useMyQuizWithDetailsStore = defineStore('myQuizWithDetails', {
     } as IQuizWithDetailsState),
   getters: {},
   actions: {
-    async fetchQuiz(quizId: string): Promise<void> {
-      try {
-        this.loading = true;
-        this.myQuizWithDetails = await getQuizWithDetails(quizId);
-      } finally {
-        this.loading = false;
+    async fetchQuiz(quizId: string, forceFetch?: boolean): Promise<void> {
+      if (forceFetch || this.myQuizWithDetails?.id !== quizId) {
+        try {
+          this.loading = true;
+          this.myQuizWithDetails = await getQuizWithDetails(quizId);
+        } finally {
+          this.loading = false;
+        }
       }
     },
   },
