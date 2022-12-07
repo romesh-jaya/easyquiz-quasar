@@ -28,19 +28,24 @@
         class="input-textarea"
         type="textarea"
       />
-      <div class="q-mt-md q-mb-lg button-container">
-        <q-btn color="secondary" :loading="saving" @click="onSubmit">{{
-          questionId ? 'Save question' : 'Create'
-        }}</q-btn>
-        <q-btn color="accent" @click="$router.go(-1)">Back</q-btn>
-      </div>
-      <q-separator />
       <h3 class="text-h5 text-accent">Answers</h3>
-      <q-toggle
-        v-model="answerSortMode"
-        label="Sort answers mode"
-        @update:model-value="onSortAnswerToggle"
-      />
+      <div class="q-my-lg button-container">
+        <q-toggle
+          v-model="answerSortMode"
+          label="Sort answers mode"
+          class="toggle"
+          @update:model-value="onSortAnswerToggle"
+        />
+        <q-btn
+          :disabled="answerSortMode"
+          color="secondary"
+          icon="add_circle_outline"
+          class="add-answer"
+          @click="onAddAnswer"
+          >Add Answer</q-btn
+        >
+      </div>
+
       <div v-if="answerSortMode">
         <SortableVue
           :list="answersList"
@@ -89,9 +94,21 @@
             />
           </q-btn>
         </div>
-        <div class="q-my-lg button-container">
-          <q-btn color="secondary" @click="onAddAnswer">Add Answer</q-btn>
-        </div>
+      </div>
+
+      <div class="q-my-xl button-container">
+        <q-btn color="secondary" :loading="saving" @click="onSubmit">{{
+          questionId ? 'Save question' : 'Create'
+        }}</q-btn>
+        <q-btn
+          v-if="questionId"
+          color="negative"
+          :loading="saving"
+          @click="deleteQuestionInternal"
+        >
+          Delete question
+        </q-btn>
+        <q-btn color="accent" @click="$router.go(-1)">Back</q-btn>
       </div>
     </div>
     <div v-else>
@@ -106,16 +123,16 @@
 import { ref, computed, toRefs, onMounted, watch } from 'vue';
 import { Sortable as SortableVue } from 'sortablejs-vue3';
 import { QInput } from 'quasar';
-// import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import type { SortableOptions } from 'sortablejs';
 import Sortable from 'sortablejs';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
-import { saveQuestionData } from '../api';
+import { saveQuestionData, deleteQuestion } from '../api';
 import { IAnswer } from '../interfaces/IAnswer';
 import { useMyQuizWithDetailsStore } from '../stores/myQuizWithDetails';
 
-// const router = useRouter();
+const router = useRouter();
 const $q = useQuasar();
 
 const props = defineProps({
@@ -201,6 +218,23 @@ const onAddAnswer = () => {
   answersList.value.push({ answer: '', isCorrect: false });
 };
 
+const browseBackToQuiz = async () => {
+  try {
+    saving.value = true;
+    await myQuizWithDetailsStore.fetchQuiz(quizId.value, true);
+    router.push(`/my-quizzes/${quizId.value}`);
+  } catch (err) {
+    console.error(err);
+
+    $q.notify({
+      type: 'negative',
+      message: 'Unknown error occured while fetching quiz',
+    });
+  } finally {
+    saving.value = false;
+  }
+};
+
 const saveQuestion = async () => {
   saving.value = true;
 
@@ -208,7 +242,8 @@ const saveQuestion = async () => {
     const errorInfo = await saveQuestionData(
       quizId.value || '',
       questionContent.value || '',
-      JSON.stringify(answersList.value) || ''
+      JSON.stringify(answersList.value) || '',
+      questionId.value
     );
 
     if (errorInfo.error) {
@@ -229,23 +264,42 @@ const saveQuestion = async () => {
     saving.value = false;
   }
 
-  /*
+  browseBackToQuiz();
+};
+
+const deleteQuestionInternal = async () => {
+  saving.value = true;
+
   try {
-    saving.value = true;
-    // Fetch quizzes
-    await myQuizzesStore.fetchQuizzes();
-    router.push('/my-quizzes');
+    const errorInfo = await deleteQuestion(
+      quizId.value || '',
+      questionId.value
+    );
+
+    if (errorInfo.error) {
+      $q.notify({
+        type: 'negative',
+        message: errorInfo.error,
+      });
+    } else {
+      $q.notify({
+        type: 'positive',
+        message: 'Question deleted',
+      });
+    }
   } catch (err) {
     console.error(err);
 
     $q.notify({
       type: 'negative',
-      message: 'Unknown error occured while fetching quizzes',
+      message: 'Unknown error occured while trying to delete Question',
     });
+    return;
   } finally {
     saving.value = false;
   }
-  */
+
+  browseBackToQuiz();
 };
 
 const fetchQuizWithDetails = async () => {
@@ -305,5 +359,16 @@ onMounted(() => {
 .answer {
   flex: 1;
   padding-bottom: 0 !important;
+}
+
+.toggle {
+  flex: 1;
+  justify-content: center;
+}
+
+.add-answer {
+  i {
+    margin-right: 10px;
+  }
 }
 </style>

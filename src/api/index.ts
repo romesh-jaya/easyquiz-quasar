@@ -116,3 +116,13 @@ export const saveQuestionData = async (
   );
   return response.data as IAPIError;
 };
+
+export const deleteQuestion = async (
+  quizId: string,
+  id: string
+): Promise<IAPIError> => {
+  const response = await api.delete(
+    `${getBackendURL()}/api/auth/quizzes/${quizId}/questions/${id}`
+  );
+  return response.data as IAPIError;
+};
