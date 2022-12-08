@@ -27,6 +27,7 @@
         lazy-rules
         class="input-textarea"
         type="textarea"
+        :disable="saving || deleting"
       />
       <h3 class="text-h5 text-accent">Answers</h3>
       <div class="q-my-lg button-container">
@@ -37,7 +38,7 @@
           @update:model-value="onSortAnswerToggle"
         />
         <q-btn
-          :disabled="answerSortMode"
+          :disabled="answerSortMode || saving || deleting"
           color="secondary"
           icon="add_circle_outline"
           class="add-answer"
@@ -79,13 +80,15 @@
             :rules="[(val) => !!val || '* Required']"
             lazy-rules
             class="answer"
+            :disable="saving || deleting"
           />
           <q-toggle
             v-model="item.isCorrect"
             label="Correct answer"
+            :disable="saving || deleting"
             :indeterminate-value="false"
           />
-          <q-btn flat dense round>
+          <q-btn flat dense round :disabled="saving || deleting">
             <q-icon
               size="1.5em"
               name="close"
@@ -97,24 +100,63 @@
       </div>
 
       <div class="q-my-xl button-container">
-        <q-btn color="secondary" :loading="saving" @click="onSubmit">{{
-          questionId ? 'Save question' : 'Create'
-        }}</q-btn>
+        <q-btn
+          color="secondary"
+          :loading="saving"
+          :disabled="deleting"
+          @click="onSubmit"
+          >{{ questionId ? 'Save question' : 'Create' }}</q-btn
+        >
         <q-btn
           v-if="questionId"
           color="negative"
-          :loading="saving"
-          @click="deleteQuestionInternal"
+          :loading="deleting"
+          :disabled="saving"
+          @click="showDeleteConfirmDialog = true"
         >
           Delete question
         </q-btn>
-        <q-btn color="accent" @click="$router.go(-1)">Back</q-btn>
+        <q-btn
+          color="accent"
+          :disabled="saving || deleting"
+          @click="$router.go(-1)"
+          >Back</q-btn
+        >
+      </div>
+      <div
+        v-if="generalError"
+        class="q-field__bottom q-mt-md q-mx-auto email-exists"
+      >
+        {{ generalError }}
       </div>
     </div>
     <div v-else>
       <div class="q-mt-xl">
         <p>{{ error ?? 'Quiz not found' }}</p>
       </div>
+    </div>
+    <div>
+      <q-dialog v-model="showDeleteConfirmDialog" persistent>
+        <q-card>
+          <q-card-section class="row items-center">
+            <q-avatar icon="help_outline" color="primary" text-color="white" />
+            <span class="q-ml-sm"
+              >Are you sure you wish to delete this question?</span
+            >
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn v-close-popup flat label="No" color="accent" />
+            <q-btn
+              v-close-popup
+              flat
+              label="Yes"
+              color="accent"
+              @click="deleteQuestionInternal"
+            />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </div>
   </PageContainerResponsive>
 </template>
@@ -150,7 +192,10 @@ const questionMatched = myQuizWithDetails.value?.questions.find(
 );
 const loading = computed(() => myQuizWithDetailsStore.loading);
 const saving = ref(false);
+const deleting = ref(false);
 const error = ref('');
+const generalError = ref('');
+const showDeleteConfirmDialog = ref(false);
 
 const questionContent = ref(
   questionMatched ? questionMatched.questionContent : ''
@@ -167,6 +212,14 @@ const answersList = ref<IAnswer[]>(
 const answersListRef = ref<QInput[]>([]);
 const answerSortMode = ref(false);
 
+watch(
+  answersList,
+  () => {
+    generalError.value = '';
+  },
+  { deep: true }
+);
+
 watch(myQuizWithDetails, () => {
   if (myQuizWithDetails.value) {
     const questionMatched = myQuizWithDetails.value.questions.find(
@@ -181,6 +234,7 @@ watch(myQuizWithDetails, () => {
 
 const sortableOptions = computed<SortableOptions>(() => {
   return {
+    disabled: saving.value || deleting.value,
     draggable: '.draggable',
     ghostClass: 'ghost',
     dragClass: 'drag',
@@ -211,6 +265,9 @@ const onSortAnswerToggle = (isToggleOn: boolean) => {
 };
 
 const onAnswerRemove = (index: number) => {
+  if (saving.value || deleting.value) {
+    return;
+  }
   answersList.value.splice(index, 1);
 };
 
@@ -220,7 +277,6 @@ const onAddAnswer = () => {
 
 const browseBackToQuiz = async () => {
   try {
-    saving.value = true;
     await myQuizWithDetailsStore.fetchQuiz(quizId.value, true);
     router.push(`/my-quizzes/${quizId.value}`);
   } catch (err) {
@@ -230,8 +286,6 @@ const browseBackToQuiz = async () => {
       type: 'negative',
       message: 'Unknown error occured while fetching quiz',
     });
-  } finally {
-    saving.value = false;
   }
 };
 
@@ -251,6 +305,8 @@ const saveQuestion = async () => {
         type: 'negative',
         message: errorInfo.error,
       });
+    } else {
+      browseBackToQuiz();
     }
   } catch (err) {
     console.error(err);
@@ -263,12 +319,10 @@ const saveQuestion = async () => {
   } finally {
     saving.value = false;
   }
-
-  browseBackToQuiz();
 };
 
 const deleteQuestionInternal = async () => {
-  saving.value = true;
+  deleting.value = true;
 
   try {
     const errorInfo = await deleteQuestion(
@@ -286,6 +340,7 @@ const deleteQuestionInternal = async () => {
         type: 'positive',
         message: 'Question deleted',
       });
+      browseBackToQuiz();
     }
   } catch (err) {
     console.error(err);
@@ -296,10 +351,8 @@ const deleteQuestionInternal = async () => {
     });
     return;
   } finally {
-    saving.value = false;
+    deleting.value = false;
   }
-
-  browseBackToQuiz();
 };
 
 const fetchQuizWithDetails = async () => {
@@ -316,6 +369,14 @@ const fetchQuizWithDetails = async () => {
 const onSubmit = () => {
   questionContentRef.value.validate();
   if (questionContentRef.value.hasError || doAnswersHaveErrors()) {
+    return;
+  }
+  if (answersList.value.length < 2) {
+    generalError.value = 'At least two answers must be specified.';
+    return;
+  }
+  if (!answersList.value.find((answer) => answer.isCorrect)) {
+    generalError.value = 'At least one answer must be marked as correct.';
     return;
   }
   saveQuestion();
