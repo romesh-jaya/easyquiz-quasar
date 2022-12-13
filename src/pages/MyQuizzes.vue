@@ -16,7 +16,10 @@
         <q-skeleton height="150px" />
         <q-skeleton height="20px" />
       </div>
-      <div class="quiz-container">
+      <div v-else-if="error" class="q-mt-xl">
+        <p>{{ error }}</p>
+      </div>
+      <div v-else class="quiz-container">
         <QuizOverview
           v-for="myQuiz in myQuizzes"
           :id="myQuiz.id"
@@ -34,7 +37,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import QuizOverview from '../components/QuizOverview.vue';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
@@ -44,10 +47,24 @@ const router = useRouter();
 const myQuizzesStore = useMyQuizzesStore();
 const myQuizzes = computed(() => myQuizzesStore.myQuizzes);
 const loading = computed(() => myQuizzesStore.loading);
+const error = ref('');
+
+const fetchQuizzes = async () => {
+  try {
+    await myQuizzesStore.fetchQuizzes();
+  } catch (err) {
+    console.error(err);
+    error.value = 'Error loading quizzes';
+  }
+};
 
 const onCreateQuiz = async () => {
   router.push('/create-edit-quiz');
 };
+
+onMounted(() => {
+  fetchQuizzes();
+});
 </script>
 
 <style lang="scss">

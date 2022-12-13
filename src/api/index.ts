@@ -5,6 +5,7 @@ import { IAPIError } from '../interfaces/IAPIError';
 import { IQuiz } from '../interfaces/IQuiz';
 import { IQuizWithDetails } from '@/interfaces/IQuizWithDetails';
 import { IQuestion } from '@/interfaces/IQuestion';
+import { IIdAPIError } from '@/interfaces/IIdAPIError';
 
 const quizDbToClient = (dataOne: any): IQuiz => {
   return {
@@ -69,7 +70,7 @@ export const saveQuizData = async (
   description: string,
   passMarkPercentage: number,
   id?: string
-): Promise<IAPIError> => {
+): Promise<IIdAPIError> => {
   if (id) {
     const response = await api.put(
       `${getBackendURL()}/api/auth/quizzes/${id}`,
@@ -79,7 +80,7 @@ export const saveQuizData = async (
         passMarkPercentage,
       }
     );
-    return response.data as IAPIError;
+    return response.data as IIdAPIError;
   }
 
   const response = await api.post(`${getBackendURL()}/api/auth/quizzes`, {
@@ -87,7 +88,7 @@ export const saveQuizData = async (
     description,
     passMarkPercentage,
   });
-  return response.data as IAPIError;
+  return response.data as IIdAPIError;
 };
 
 export const saveQuestionData = async (

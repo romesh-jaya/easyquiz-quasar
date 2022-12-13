@@ -116,24 +116,30 @@ const saveQuiz = async () => {
   loading.value = true;
 
   try {
-    const errorInfo = await saveQuizData(
+    const response = await saveQuizData(
       quizName.value || '',
       description.value || '',
       passMarkPercentage.value || 0,
       id.value
     );
 
-    if (errorInfo.error) {
-      if (errorInfo.isGeneralError) {
-        generalError.value = errorInfo.error;
+    if (response.error) {
+      if (response.isGeneralError) {
+        generalError.value = response.error;
         return;
       }
       $q.notify({
         type: 'negative',
-        message: errorInfo.error,
+        message: response.error,
       });
       return;
     }
+
+    myQuizzesStore.setDataStale();
+    if (myQuizWithDetails.value?.id === id.value) {
+      myQuizWithDetailsStore.clearQuiz();
+    }
+    router.push(`/my-quizzes/${response.id}`);
   } catch (err) {
     console.error(err);
 
@@ -142,25 +148,6 @@ const saveQuiz = async () => {
       message: 'Unknown error occured while trying to save quiz',
     });
     return;
-  } finally {
-    loading.value = false;
-  }
-
-  try {
-    loading.value = true;
-    // Fetch quizzes
-    await myQuizzesStore.fetchQuizzes();
-    if (myQuizWithDetails.value?.id === id.value) {
-      myQuizWithDetailsStore.clearQuiz();
-    }
-    router.push('/my-quizzes');
-  } catch (err) {
-    console.error(err);
-
-    $q.notify({
-      type: 'negative',
-      message: 'Unknown error occured while fetching quizzes',
-    });
   } finally {
     loading.value = false;
   }

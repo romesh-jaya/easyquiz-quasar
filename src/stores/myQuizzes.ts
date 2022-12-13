@@ -5,6 +5,7 @@ import { getMyQuizzes } from '../api';
 export interface IMyQuizzesState {
   myQuizzes: IQuiz[];
   loading: boolean;
+  dataStale: boolean;
 }
 
 export const useMyQuizzesStore = defineStore('myQuizzes', {
@@ -12,15 +13,23 @@ export const useMyQuizzesStore = defineStore('myQuizzes', {
     ({
       myQuizzes: [],
       loading: true,
+      dataStale: true,
     } as IMyQuizzesState),
   getters: {},
   actions: {
     async fetchQuizzes(): Promise<void> {
       try {
-        this.myQuizzes = await getMyQuizzes();
+        if (this.dataStale) {
+          this.loading = true;
+          this.myQuizzes = await getMyQuizzes();
+          this.dataStale = false;
+        }
       } finally {
         this.loading = false;
       }
+    },
+    setDataStale(): void {
+      this.dataStale = true;
     },
   },
 });

@@ -47,6 +47,12 @@
         >
       </div>
       <h3 class="text-h5 text-accent">Questions</h3>
+      <div v-if="myQuizWithDetails.questions.length === 0" class="q-mt-xl">
+        <p>
+          No questions have been added yet. Press Add Question to add a
+          question.
+        </p>
+      </div>
       <div
         v-for="(item, index) in myQuizWithDetails.questions"
         :key="index"
