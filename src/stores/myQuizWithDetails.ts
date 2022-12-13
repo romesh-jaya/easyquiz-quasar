@@ -25,5 +25,8 @@ export const useMyQuizWithDetailsStore = defineStore('myQuizWithDetails', {
         }
       }
     },
+    clearQuiz(): void {
+      this.myQuizWithDetails = undefined;
+    },
   },
 });

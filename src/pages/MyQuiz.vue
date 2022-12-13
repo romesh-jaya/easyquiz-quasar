@@ -34,9 +34,18 @@
         </q-card-section>
       </q-card>
       <div class="q-my-lg button-container">
-        <q-btn color="secondary" @click="onEditQuiz">Edit Quiz Details</q-btn>
+        <q-btn color="accent" @click="onEditQuiz">Edit Quiz Details</q-btn>
       </div>
       <q-separator />
+      <div class="q-my-lg button-container">
+        <q-btn
+          color="secondary"
+          icon="add_circle_outline"
+          class="add-question"
+          @click="onAddQuestion"
+          >Add Question</q-btn
+        >
+      </div>
       <h3 class="text-h5 text-accent">Questions</h3>
       <div
         v-for="(item, index) in myQuizWithDetails.questions"
@@ -51,9 +60,6 @@
           readonly
           @click="onEditQuestion(item.id)"
         />
-      </div>
-      <div class="q-my-lg button-container">
-        <q-btn color="secondary" @click="onAddQuestion">Add Question</q-btn>
       </div>
     </div>
     <div v-else>
@@ -155,6 +161,12 @@ onMounted(() => {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+}
+
+.add-question {
+  i {
+    margin-right: 10px;
   }
 }
 </style>

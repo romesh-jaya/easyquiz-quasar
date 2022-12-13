@@ -71,9 +71,14 @@ import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { saveQuizData } from '../api';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
+import { useMyQuizWithDetailsStore } from '../stores/myQuizWithDetails';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
 
 const myQuizzesStore = useMyQuizzesStore();
+const myQuizWithDetailsStore = useMyQuizWithDetailsStore();
+const myQuizWithDetails = computed(
+  () => myQuizWithDetailsStore.myQuizWithDetails
+);
 const router = useRouter();
 const $q = useQuasar();
 
@@ -145,6 +150,9 @@ const saveQuiz = async () => {
     loading.value = true;
     // Fetch quizzes
     await myQuizzesStore.fetchQuizzes();
+    if (myQuizWithDetails.value?.id === id.value) {
+      myQuizWithDetailsStore.clearQuiz();
+    }
     router.push('/my-quizzes');
   } catch (err) {
     console.error(err);
