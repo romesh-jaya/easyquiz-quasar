@@ -37,3 +37,24 @@ $icon-filter-white: invert(100%) sepia(2%) saturate(7444%) hue-rotate(290deg)
   gap: 20px;
   justify-content: center;
 }
+
+// Sortable JS related
+.draggable {
+  input {
+    cursor: move !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.ghost {
+  opacity: 0.5;
+  background: #fff;
+  border: 1px dashed #ccc;
+}
+
+.drag {
+  background: var(--q-primary);
+}
+// Sortable JS related

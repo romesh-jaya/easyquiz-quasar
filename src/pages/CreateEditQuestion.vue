@@ -388,25 +388,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-.draggable {
-  input {
-    cursor: move !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-.ghost {
-  opacity: 0.5;
-  background: #fff;
-  border: 1px dashed #ccc;
-}
-
-.drag {
-  background: var(--q-primary);
-}
-
 .close-icon {
   padding: 12px;
   cursor: pointer;

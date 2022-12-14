@@ -91,6 +91,19 @@ export const saveQuizData = async (
   return response.data as IIdAPIError;
 };
 
+export const saveQuestionOrder = async (
+  questionOrder: string[],
+  quizId: string
+): Promise<IIdAPIError> => {
+  const response = await api.post(
+    `${getBackendURL()}/api/auth/quizzes/${quizId}/update-question-order`,
+    {
+      questionOrder,
+    }
+  );
+  return response.data as IIdAPIError;
+};
+
 export const saveQuestionData = async (
   quizId: string,
   questionContent: string,
