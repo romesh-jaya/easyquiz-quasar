@@ -6,7 +6,30 @@
       <q-skeleton height="20px" />
     </div>
     <div v-else-if="myQuizWithDetails">
-      <h3 class="text-h4 text-accent">{{ myQuizWithDetails.quizName }}</h3>
+      <div class="quiz-header">
+        <h3 class="text-h4 text-accent heading">
+          {{ myQuizWithDetails.quizName }}
+        </h3>
+        <q-btn
+          dense
+          round
+          label="..."
+          aria-label="Menu"
+          class="text-accent menu-button"
+        >
+          <q-menu auto-close fit class="text-accent text-subtitle1">
+            <q-list style="min-width: 200px">
+              <q-item clickable @click="onEditQuiz">
+                <q-item-section>Edit Quiz Details</q-item-section>
+              </q-item>
+              <q-item clickable>
+                <q-item-section>Publish</q-item-section>
+              </q-item>
+              <q-separator />
+            </q-list>
+          </q-menu>
+        </q-btn>
+      </div>
       <q-card>
         <q-card-section class="q-pa-xs">
           <div class="text-body2 q-pa-md">
@@ -33,13 +56,8 @@
           </div>
         </q-card-section>
       </q-card>
-      <div class="q-my-lg button-container">
-        <q-btn color="accent" :disabled="saving" @click="onEditQuiz"
-          >Edit Quiz Details</q-btn
-        >
-      </div>
       <q-separator />
-      <div class="q-my-lg button-container">
+      <div class="q-my-xl button-container">
         <q-toggle
           v-if="myQuizWithDetails.questions.length > 1"
           v-model="questionSortMode"
@@ -295,5 +313,18 @@ onMounted(() => {
 .toggle {
   flex: 1;
   justify-content: center;
+}
+
+.quiz-header {
+  display: flex;
+  place-items: center;
+}
+
+.heading {
+  flex: 1;
+}
+
+.menu-button {
+  height: 32px;
 }
 </style>
