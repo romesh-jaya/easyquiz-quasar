@@ -5,6 +5,9 @@
       <q-skeleton height="150px" />
       <q-skeleton height="20px" />
     </div>
+    <div v-else-if="error" class="q-mt-xl">
+      <p>{{ error }}</p>
+    </div>
     <div v-else>
       <h3 class="text-h4 text-accent">
         {{ myQuizForEdit ? 'Edit quiz' : 'Create quiz' }}
@@ -20,6 +23,7 @@
         ]"
         lazy-rules
         class="input-field"
+        :disable="loading"
         @update:model-value="onFieldChange"
       />
       <q-input
@@ -33,6 +37,7 @@
         ]"
         lazy-rules
         class="input-field"
+        :disable="loading"
         @update:model-value="onFieldChange"
       />
       <q-input
@@ -47,13 +52,16 @@
         lazy-rules
         class="input-field"
         mask="###"
+        :disable="loading"
         @update:model-value="onFieldChange"
       />
       <div class="q-mt-md button-container">
         <q-btn color="secondary" :loading="loading" @click="onSubmit">{{
           myQuizForEdit ? 'Save quiz' : 'Create'
         }}</q-btn>
-        <q-btn color="accent" @click="$router.go(-1)">Back</q-btn>
+        <q-btn color="accent" :disabled="loading" @click="$router.go(-1)"
+          >Back</q-btn
+        >
       </div>
       <div
         v-if="generalError"
@@ -66,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, toRefs, watch } from 'vue';
+import { ref, computed, toRefs, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { saveQuizData } from '../api';
@@ -87,6 +95,7 @@ const props = defineProps({
 });
 
 const { id } = toRefs(props);
+const error = ref('');
 
 const myQuizForEdit = computed(() =>
   myQuizzesStore.myQuizzes.find((quiz) => quiz.id === id.value)
@@ -153,6 +162,15 @@ const saveQuiz = async () => {
   }
 };
 
+const fetchQuizzes = async () => {
+  try {
+    await myQuizzesStore.fetchQuizzes();
+  } catch (err) {
+    console.error(err);
+    error.value = 'Error loading quizzes';
+  }
+};
+
 const onSubmit = () => {
   quizNameRef.value.validate();
   descriptionRef.value.validate();
@@ -171,6 +189,10 @@ const onSubmit = () => {
 const onFieldChange = () => {
   generalError.value = '';
 };
+
+onMounted(() => {
+  fetchQuizzes();
+});
 </script>
 
 <style lang="scss"></style>
