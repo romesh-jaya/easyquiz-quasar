@@ -16,7 +16,7 @@
           <div class="q-pa-md">
             <div class="text-body2 q-pa-xs text-left flex">
               <span class="attribute-label">Last Updated:</span>
-              {{ getLastUpdatedHumanized() }}
+              {{ getLastUpdatedHumanized(myQuizWithDetails.lastUpdated) }}
             </div>
             <div class="text-body2 q-pa-xs text-left flex">
               <span class="attribute-label">Pass Mark Percentage: </span
@@ -127,7 +127,6 @@
 import { computed, toRefs, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import humanizeDuration from 'humanize-duration';
 import { Sortable as SortableVue } from 'sortablejs-vue3';
 import type { SortableOptions } from 'sortablejs';
 import Sortable from 'sortablejs';
@@ -136,6 +135,7 @@ import { QuizStatus } from '../constants/QuizStatus';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
 import { saveQuestionOrder } from '../api';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
+import { getLastUpdatedHumanized } from '../utils/common';
 
 interface IQuestionInfo {
   questionContent: string;
@@ -243,28 +243,6 @@ const fetchQuizWithDetails = async (forceFetch = false) => {
     console.error(err);
     error.value = 'Error loading quiz';
   }
-};
-
-const getLastUpdatedHumanized = () => {
-  let timeDiffMs: number;
-  let durationHumanFriendly = 'unknown';
-  let lastRefreshedText = '';
-
-  if (myQuizWithDetails.value && myQuizWithDetails.value.lastUpdated) {
-    timeDiffMs =
-      new Date().getTime() - myQuizWithDetails.value.lastUpdated.getTime();
-    if (timeDiffMs / 1000 < 60) {
-      // in the last minute
-      lastRefreshedText = 'Just now';
-    } else {
-      durationHumanFriendly = humanizeDuration(timeDiffMs, {
-        largest: 1,
-      });
-      lastRefreshedText = `${durationHumanFriendly} ago`;
-    }
-  }
-
-  return lastRefreshedText;
 };
 
 const onEditQuiz = () => {

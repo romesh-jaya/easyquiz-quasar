@@ -25,10 +25,14 @@
           (val) => val.length <= 1000 || 'Please use maximum 1000 characters',
         ]"
         lazy-rules
-        class="input-textarea"
+        class="input-textarea q-pb-xs"
         type="textarea"
         :disable="saving || deleting"
       />
+      <small v-if="questionId" class="text-body3 q-pa-xs text-left flex">
+        <span class="attribute-label-small">Last Updated: </span>
+        {{ getLastUpdatedHumanized(myQuizWithDetails.lastUpdated) }}
+      </small>
       <h3 class="text-h5 text-accent">Answers</h3>
       <div class="q-my-lg button-container">
         <q-toggle
@@ -173,6 +177,7 @@ import PageContainerResponsive from '../components/PageContainerResponsive.vue';
 import { saveQuestionData, deleteQuestion } from '../api';
 import { IAnswer } from '../interfaces/IAnswer';
 import { useMyQuizWithDetailsStore } from '../stores/myQuizWithDetails';
+import { getLastUpdatedHumanized } from '../utils/common';
 
 const router = useRouter();
 const $q = useQuasar();
@@ -412,5 +417,10 @@ onMounted(() => {
   i {
     margin-right: 10px;
   }
+}
+
+.attribute-label-small {
+  width: 100px;
+  display: inline-block;
 }
 </style>
