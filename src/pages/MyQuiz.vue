@@ -48,7 +48,7 @@
                 clickable
                 @click="
                   myQuizWithDetails?.statusDB === 'published' &&
-                    onStateChange('unpublished')
+                    onStateChangePending('unpublished')
                 "
               >
                 <q-item-section>Unpublish</q-item-section>
@@ -59,7 +59,7 @@
                 @click="
                   (myQuizWithDetails?.statusDB === 'published' ||
                     myQuizWithDetails?.statusDB === 'unpublished') &&
-                    onStateChange('archived')
+                    onStateChangePending('archived')
                 "
               >
                 <q-item-section>Archive</q-item-section>
@@ -177,6 +177,33 @@
         <p>{{ error ?? 'Quiz not found' }}</p>
       </div>
     </div>
+    <div>
+      <q-dialog v-model="showStatusChangeConfirmDialog" persistent>
+        <q-card>
+          <q-card-section class="row items-center">
+            <q-avatar icon="help_outline" color="primary" text-color="white" />
+            <span class="q-ml-sm"
+              >{{
+                pendingStatusChangeTo === 'unpublished'
+                  ? 'Are you sure you wish to Unpublish this question? Any unaccepted invitations will not be able to access this quiz.'
+                  : 'Are you sure you wish to Archive this question? No further changes will be possible.'
+              }}
+            </span>
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn v-close-popup flat label="No" color="accent" />
+            <q-btn
+              v-close-popup
+              flat
+              label="Yes"
+              color="accent"
+              @click="onStateChange()"
+            />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+    </div>
   </PageContainerResponsive>
 </template>
 
@@ -229,6 +256,9 @@ const updatesNotAllowed = computed(
     myQuizWithDetails.value?.statusDB === 'archived' ||
     myQuizWithDetails.value?.statusDB === 'published'
 );
+const showStatusChangeConfirmDialog = ref(false);
+const pendingStatusChangeTo = ref('');
+
 watch(myQuizWithDetails, () => {
   if (myQuizWithDetails.value) {
     questionsList.value = myQuizWithDetails.value.questions.map((question) => ({
@@ -252,8 +282,16 @@ const moveItemInArray = (array: IQuestionInfo[], from: number, to: number) => {
   array.splice(to, 0, item);
 };
 
-const onStateChange = async (newStatus: string) => {
-  if (newStatus === 'published' && questionsList.value.length === 0) {
+const onStateChangePending = (newStatus: string) => {
+  showStatusChangeConfirmDialog.value = true;
+  pendingStatusChangeTo.value = newStatus;
+};
+
+const onStateChange = async (newState?: string) => {
+  console.log('newState', newState);
+  console.log('pendingStatusChangeTo.value', pendingStatusChangeTo.value);
+  const changeStateTo = newState ?? pendingStatusChangeTo.value;
+  if (changeStateTo === 'published' && questionsList.value.length === 0) {
     $q.notify({
       type: 'negative',
       message: 'Cannot publish a quiz without any questions',
@@ -264,7 +302,7 @@ const onStateChange = async (newStatus: string) => {
   saving.value = true;
 
   try {
-    const response = await updateQuizStatus(newStatus, id.value);
+    const response = await updateQuizStatus(changeStateTo, id.value);
 
     if (response.error) {
       $q.notify({

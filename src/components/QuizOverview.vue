@@ -2,6 +2,18 @@
   <q-card class="my-card" @click="onCardClicked">
     <q-card-section class="bg-secondary text-white q-pa-xs">
       <div class="text-h6">{{ title }}</div>
+      <q-badge
+        :color="
+          status === 'Published'
+            ? 'accent'
+            : status === 'Unpublished'
+            ? 'negative'
+            : 'grey'
+        "
+        class="q-pa-xs q-mb-sm"
+      >
+        {{ status }}
+      </q-badge>
     </q-card-section>
     <q-separator />
 
@@ -21,6 +33,7 @@ const props = defineProps({
   id: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
+  status: { type: String, required: true },
 });
 
 const { id } = toRefs(props);
