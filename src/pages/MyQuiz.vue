@@ -19,11 +19,50 @@
         >
           <q-menu auto-close fit class="text-accent text-subtitle1">
             <q-list style="min-width: 200px">
-              <q-item clickable @click="onEditQuiz">
+              <q-item
+                clickable
+                :disable="updatesNotAllowed"
+                @click="onEditQuiz"
+              >
                 <q-item-section>Edit Quiz Details</q-item-section>
               </q-item>
-              <q-item clickable>
+              <q-separator />
+              <q-item
+                :disable="
+                  myQuizWithDetails?.statusDB === 'published' ||
+                  myQuizWithDetails?.statusDB === 'archived'
+                "
+                clickable
+                @click="
+                  myQuizWithDetails?.statusDB === 'unpublished' &&
+                    onStateChange('published')
+                "
+              >
                 <q-item-section>Publish</q-item-section>
+              </q-item>
+              <q-item
+                :disable="
+                  myQuizWithDetails?.statusDB === 'unpublished' ||
+                  myQuizWithDetails?.statusDB === 'archived'
+                "
+                clickable
+                @click="
+                  myQuizWithDetails?.statusDB === 'published' &&
+                    onStateChange('unpublished')
+                "
+              >
+                <q-item-section>Unpublish</q-item-section>
+              </q-item>
+              <q-item
+                :disable="myQuizWithDetails?.statusDB === 'archived'"
+                clickable
+                @click="
+                  (myQuizWithDetails?.statusDB === 'published' ||
+                    myQuizWithDetails?.statusDB === 'unpublished') &&
+                    onStateChange('archived')
+                "
+              >
+                <q-item-section>Archive</q-item-section>
               </q-item>
               <q-separator />
             </q-list>
@@ -59,13 +98,13 @@
       <q-separator />
       <div class="q-my-xl button-container">
         <q-toggle
-          v-if="myQuizWithDetails.questions.length > 1"
+          v-if="myQuizWithDetails.questions.length > 1 && !updatesNotAllowed"
           v-model="questionSortMode"
           label="Sort questions mode"
           class="toggle"
         />
         <q-btn
-          :disabled="questionSortMode || saving"
+          :disabled="questionSortMode || saving || updatesNotAllowed"
           color="secondary"
           icon="add_circle_outline"
           class="add-question"
@@ -75,7 +114,7 @@
       </div>
       <h3 class="text-h5 text-accent">Questions</h3>
       <div v-if="myQuizWithDetails.questions.length === 0" class="q-mt-xl">
-        <p>
+        <p v-if="!updatesNotAllowed">
           No questions have been added yet. Press Add Question to add a
           question.
         </p>
@@ -115,22 +154,22 @@
             @click="onEditQuestion(item.id)"
           />
         </div>
-        <div class="q-my-xl button-container">
-          <q-btn
-            v-if="myQuizWithDetails.questions.length > 1"
-            color="secondary"
-            :loading="saving"
-            :disabled="!questionSortMode"
-            @click="onSubmit"
-            >Save question order</q-btn
-          >
-          <q-btn
-            color="accent"
-            :disabled="saving"
-            @click="$router.push('/my-quizzes')"
-            >Back</q-btn
-          >
-        </div>
+      </div>
+      <div class="q-my-xl button-container">
+        <q-btn
+          v-if="myQuizWithDetails.questions.length > 1 && !updatesNotAllowed"
+          color="secondary"
+          :loading="saving"
+          :disabled="!questionSortMode"
+          @click="onSubmit"
+          >Save question order</q-btn
+        >
+        <q-btn
+          color="accent"
+          :disabled="saving"
+          @click="$router.push('/my-quizzes')"
+          >Back</q-btn
+        >
       </div>
     </div>
     <div v-else>
@@ -151,7 +190,7 @@ import Sortable from 'sortablejs';
 import { useMyQuizWithDetailsStore } from '../stores/myQuizWithDetails';
 import { QuizStatus } from '../constants/QuizStatus';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
-import { saveQuestionOrder } from '../api';
+import { saveQuestionOrder, updateQuizStatus } from '../api';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
 import { getLastUpdatedHumanized } from '../utils/common';
 
@@ -185,7 +224,11 @@ const loading = computed(() => myQuizWithDetailsStore.loading);
 const error = ref('');
 const questionSortMode = ref(false);
 const saving = ref(false);
-
+const updatesNotAllowed = computed(
+  () =>
+    myQuizWithDetails.value?.statusDB === 'archived' ||
+    myQuizWithDetails.value?.statusDB === 'published'
+);
 watch(myQuizWithDetails, () => {
   if (myQuizWithDetails.value) {
     questionsList.value = myQuizWithDetails.value.questions.map((question) => ({
@@ -207,6 +250,44 @@ const sortableOptions = computed<SortableOptions>(() => {
 const moveItemInArray = (array: IQuestionInfo[], from: number, to: number) => {
   const item = array.splice(from, 1)[0];
   array.splice(to, 0, item);
+};
+
+const onStateChange = async (newStatus: string) => {
+  if (newStatus === 'published' && questionsList.value.length === 0) {
+    $q.notify({
+      type: 'negative',
+      message: 'Cannot publish a quiz without any questions',
+    });
+    return;
+  }
+
+  saving.value = true;
+
+  try {
+    const response = await updateQuizStatus(newStatus, id.value);
+
+    if (response.error) {
+      $q.notify({
+        type: 'negative',
+        message: response.error,
+      });
+      return;
+    }
+
+    myQuizzesStore.setDataStale();
+  } catch (err) {
+    console.error(err);
+
+    $q.notify({
+      type: 'negative',
+      message: 'Unknown error occured while trying to save quiz',
+    });
+    return;
+  } finally {
+    saving.value = false;
+  }
+
+  fetchQuizWithDetails(true);
 };
 
 const onOrderChanged = (event: Sortable.SortableEvent) => {

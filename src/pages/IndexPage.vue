@@ -8,13 +8,18 @@
       </q-img>
     </div>
     <div v-if="!loadingAuth" class="q-mt-md container-responsive">
-      <p
-        v-if="isLoggedIn && !loadingQuizzes && myQuizzes.length === 0"
-        class="text-center"
-      >
-        Click <router-link to="/create-edit-quiz">here</router-link> to start
-        your first quiz.
-      </p>
+      <div v-if="isLoggedIn && !loadingQuizzes">
+        <p v-if="myQuizzes.length === 0" class="text-center">
+          Click <router-link to="/create-edit-quiz">here</router-link> to start
+          your first quiz.
+        </p>
+        <p v-else class="text-center">
+          Click
+          <router-link :to="`/my-quizzes/${myQuizzes[0].id}`">here</router-link>
+          to keep working on your last quiz,
+          {{ myQuizzes[0].quizName }}.
+        </p>
+      </div>
       <p v-if="!isLoggedIn" class="text-center">
         Existing user? <router-link to="/login">Login</router-link> or
         <router-link to="/signup">Create a free account.</router-link>
