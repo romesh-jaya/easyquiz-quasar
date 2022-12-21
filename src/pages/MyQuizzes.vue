@@ -26,10 +26,8 @@
           :key="myQuiz"
           :title="myQuiz.quizName"
           :description="myQuiz.description"
-          :status="
-            QuizStatus.find((status) => status.dbValue === myQuiz.statusDB)
-              ?.clientValue
-          "
+          :status="myQuiz.status"
+          :status-db="myQuiz.statusDB"
         />
         <p v-if="!loading && myQuizzes.length === 0">
           You currently have not created any quizzes. Click Create Quiz to
@@ -46,7 +44,6 @@ import { useRouter } from 'vue-router';
 import QuizOverview from '../components/QuizOverview.vue';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
-import { QuizStatus } from '../constants/QuizStatus';
 
 const router = useRouter();
 const myQuizzesStore = useMyQuizzesStore();

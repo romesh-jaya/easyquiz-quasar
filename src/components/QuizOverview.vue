@@ -4,9 +4,9 @@
       <div class="text-h6">{{ title }}</div>
       <q-badge
         :color="
-          status === 'Published'
+          statusDb === 'published'
             ? 'accent'
-            : status === 'Unpublished'
+            : statusDb === 'unpublished'
             ? 'negative'
             : 'grey'
         "
@@ -34,6 +34,7 @@ const props = defineProps({
   title: { type: String, required: true },
   description: { type: String, required: true },
   status: { type: String, required: true },
+  statusDb: { type: String, required: true },
 });
 
 const { id } = toRefs(props);

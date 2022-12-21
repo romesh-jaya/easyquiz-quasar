@@ -86,11 +86,7 @@
             </div>
             <div class="text-body2 q-pa-xs text-left flex">
               <span class="attribute-label">Status: </span
-              >{{
-                QuizStatus.find(
-                  (status) => status.dbValue === myQuizWithDetails?.statusDB
-                )?.clientValue
-              }}
+              >{{ myQuizWithDetails.status }}
             </div>
           </div>
         </q-card-section>
@@ -215,7 +211,6 @@ import { Sortable as SortableVue } from 'sortablejs-vue3';
 import type { SortableOptions } from 'sortablejs';
 import Sortable from 'sortablejs';
 import { useMyQuizWithDetailsStore } from '../stores/myQuizWithDetails';
-import { QuizStatus } from '../constants/QuizStatus';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
 import { saveQuestionOrder, updateQuizStatus } from '../api';
 import { useMyQuizzesStore } from '../stores/myQuizzes';

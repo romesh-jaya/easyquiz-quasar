@@ -6,6 +6,7 @@ import { IQuiz } from '../interfaces/IQuiz';
 import { IQuizWithDetails } from '@/interfaces/IQuizWithDetails';
 import { IQuestion } from '@/interfaces/IQuestion';
 import { IIdAPIError } from '@/interfaces/IIdAPIError';
+import { QuizStatus } from '@/constants/QuizStatus';
 
 const quizDbToClient = (dataOne: any): IQuiz => {
   return {
@@ -14,6 +15,9 @@ const quizDbToClient = (dataOne: any): IQuiz => {
     passMarkPercentage: dataOne.pass_mark_percentage,
     createdByUser: dataOne.created_by_user,
     id: dataOne.id,
+    status:
+      QuizStatus.find((status) => status.dbValue === dataOne.status)
+        ?.clientValue || 'Unknown',
     statusDB: dataOne.status,
     questionOrder: dataOne.question_order,
     lastUpdated: new Date(dataOne.last_updated),

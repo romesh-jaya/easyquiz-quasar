@@ -13,11 +13,13 @@
           Click <router-link to="/create-edit-quiz">here</router-link> to start
           your first quiz.
         </p>
-        <p v-else class="text-center">
+        <p v-else-if="lastWorkedQuiz" class="text-center">
           Click
-          <router-link :to="`/my-quizzes/${myQuizzes[0].id}`">here</router-link>
+          <router-link :to="`/my-quizzes/${lastWorkedQuiz.id}`"
+            >here</router-link
+          >
           to keep working on your last quiz,
-          {{ myQuizzes[0].quizName }}.
+          {{ lastWorkedQuiz.quizName }}.
         </p>
       </div>
       <p v-if="!isLoggedIn" class="text-center">
@@ -39,6 +41,9 @@ const isLoggedIn = computed(() => !!authStore.quizUser);
 const loadingAuth = computed(() => authStore.loading);
 const myQuizzes = computed(() => myQuizzesStore.myQuizzes);
 const loadingQuizzes = computed(() => myQuizzesStore.loading);
+const lastWorkedQuiz = computed(() =>
+  myQuizzesStore.myQuizzes.find((quiz) => quiz.statusDB === 'unpublished')
+);
 </script>
 
 <style lang="scss">
