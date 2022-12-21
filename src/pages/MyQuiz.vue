@@ -33,10 +33,7 @@
                   myQuizWithDetails?.statusDB === 'archived'
                 "
                 clickable
-                @click="
-                  myQuizWithDetails?.statusDB === 'unpublished' &&
-                    onStateChange('published')
-                "
+                @click="onStateChange('published')"
               >
                 <q-item-section>Publish</q-item-section>
               </q-item>
@@ -46,21 +43,14 @@
                   myQuizWithDetails?.statusDB === 'archived'
                 "
                 clickable
-                @click="
-                  myQuizWithDetails?.statusDB === 'published' &&
-                    onStateChangePending('unpublished')
-                "
+                @click="onStateChangePending('unpublished')"
               >
                 <q-item-section>Unpublish</q-item-section>
               </q-item>
               <q-item
                 :disable="myQuizWithDetails?.statusDB === 'archived'"
                 clickable
-                @click="
-                  (myQuizWithDetails?.statusDB === 'published' ||
-                    myQuizWithDetails?.statusDB === 'unpublished') &&
-                    onStateChangePending('archived')
-                "
+                @click="onStateChangePending('archived')"
               >
                 <q-item-section>Archive</q-item-section>
               </q-item>
@@ -194,7 +184,7 @@
               flat
               label="Yes"
               color="accent"
-              @click="onStateChange()"
+              @click="onStateChange('')"
             />
           </q-card-actions>
         </q-card>

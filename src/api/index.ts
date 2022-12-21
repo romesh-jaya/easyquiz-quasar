@@ -6,7 +6,7 @@ import { IQuiz } from '../interfaces/IQuiz';
 import { IQuizWithDetails } from '@/interfaces/IQuizWithDetails';
 import { IQuestion } from '@/interfaces/IQuestion';
 import { IIdAPIError } from '@/interfaces/IIdAPIError';
-import { QuizStatus } from '@/constants/QuizStatus';
+import { QuizStatus } from '../constants/QuizStatus';
 
 const quizDbToClient = (dataOne: any): IQuiz => {
   return {
