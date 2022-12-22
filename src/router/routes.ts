@@ -76,6 +76,17 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: '/my-quizzes/:quizId/demo-quiz',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/DemoQuiz.vue'),
+        props: true,
+      },
+    ],
+  },
+  {
     path: '/my-quizzes/:quizId/create-edit-question/:questionId',
     component: () => import('layouts/MainLayout.vue'),
     children: [

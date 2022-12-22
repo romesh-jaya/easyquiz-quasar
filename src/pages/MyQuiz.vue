@@ -21,6 +21,13 @@
             <q-list style="min-width: 200px">
               <q-item
                 clickable
+                :disable="myQuizWithDetails?.statusDB === 'archived'"
+                @click="onDemoQuiz"
+              >
+                <q-item-section>Demo Quiz</q-item-section>
+              </q-item>
+              <q-item
+                clickable
                 :disable="updatesNotAllowed"
                 @click="onEditQuiz"
               >
@@ -98,7 +105,12 @@
           >Add Question</q-btn
         >
       </div>
-      <h3 class="text-h5 text-accent">Questions</h3>
+      <h3 class="text-h5 text-accent">
+        Questions
+        <span v-if="myQuizWithDetails.questions.length !== 0">{{
+          ` (${myQuizWithDetails.questions.length})`
+        }}</span>
+      </h3>
       <div v-if="myQuizWithDetails.questions.length === 0" class="q-mt-xl">
         <p v-if="!updatesNotAllowed">
           No questions have been added yet. Press Add Question to add a
@@ -365,6 +377,10 @@ const fetchQuizWithDetails = async (forceFetch = false) => {
     console.error(err);
     error.value = 'Error loading quiz';
   }
+};
+
+const onDemoQuiz = () => {
+  router.push(`${router.currentRoute.value.path}/demo-quiz`);
 };
 
 const onEditQuiz = () => {
