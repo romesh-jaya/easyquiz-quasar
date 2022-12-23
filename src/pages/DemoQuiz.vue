@@ -14,10 +14,23 @@
       </h3>
       <div class="inner-container">
         <QuizStartPage v-if="quizPhase === QuizPhase.STARTPAGE" />
+        <QuestionAndAnswers
+          v-else-if="quizPhase === QuizPhase.IN_PROGRESS && currentQuestion"
+          :question-content="currentQuestion.questionContent"
+          :answers="currentQuestion.answers.map((answer) => answer.answer)"
+          :heading="`Question ${currentQuestionIndex + 1}/${questions.length}`"
+          :answers-selected="
+            answersSelectedForAllQuestions[currentQuestionIndex]
+          "
+          @answers-selected="onAnswersSelected"
+        />
       </div>
       <div class="q-my-xl button-container quiz-button-container">
         <div class="exit-button-container">
-          <q-btn id="btn-exit" color="accent" @click="$router.go(-1)"
+          <q-btn
+            id="btn-exit"
+            color="accent"
+            @click="onPendingQuizActionChange('EXIT_QUIZ')"
             >Exit Quiz</q-btn
           >
         </div>
@@ -33,20 +46,48 @@
         }}</q-btn>
       </div>
     </div>
+    <div>
+      <q-dialog v-model="showActionConfirmDialog" persistent>
+        <q-card>
+          <q-card-section class="row items-center">
+            <q-avatar icon="help_outline" color="primary" text-color="white" />
+            <span class="q-ml-sm"
+              >{{
+                `Are you sure you wish to ${
+                  pendingQuizAction === 'EXIT_QUIZ' ? 'exit' : 'finish'
+                } the quiz?`
+              }}
+            </span>
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn v-close-popup flat label="No" color="accent" />
+            <q-btn
+              v-close-popup
+              flat
+              label="Yes"
+              color="accent"
+              @click="onActionConfirm"
+            />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+    </div>
   </PageContainerResponsive>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, toRefs, onMounted, watch } from 'vue';
-//import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 //import { useQuasar } from 'quasar';
 import { useMyQuizWithDetailsStore } from '../stores/myQuizWithDetails';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
 import { QuizPhase } from '../enums/QuizPhase';
 import QuizStartPage from '../components/QuizStartPage.vue';
+import QuestionAndAnswers from '../components/QuestionAndAnswers.vue';
 import { IQuestion } from '../interfaces/IQuestion';
 
-// const router = useRouter();
+const router = useRouter();
 // const $q = useQuasar();
 
 const props = defineProps({
@@ -59,12 +100,18 @@ const demoQuiz = computed(() => myQuizWithDetailsStore.myQuizWithDetails);
 const questions = ref<IQuestion[]>(
   myQuizWithDetailsStore.myQuizWithDetails?.questions || []
 );
+const answersSelectedForAllQuestions = ref<number[][]>(
+  myQuizWithDetailsStore.myQuizWithDetails?.questions
+    ? Array.from({ length: questions.value.length }, () => [])
+    : []
+);
 const currentQuestion = ref<IQuestion | undefined>();
 const currentQuestionIndex = ref<number>(-1);
-
 const loading = computed(() => myQuizWithDetailsStore.loading);
 const error = ref('');
 const quizPhase = ref<QuizPhase>(QuizPhase.STARTPAGE);
+const pendingQuizAction = ref('');
+const showActionConfirmDialog = ref(false);
 
 watch(demoQuiz, () => {
   if (demoQuiz.value) {
@@ -74,11 +121,26 @@ watch(demoQuiz, () => {
 
 watch(questions, () => {
   console.log('questions', questions.value);
+  answersSelectedForAllQuestions.value = Array.from(
+    { length: questions.value.length },
+    () => []
+  );
 });
 
 watch(currentQuestionIndex, () => {
   console.log('currentQuestionIndex', currentQuestionIndex.value);
 });
+
+watch(
+  answersSelectedForAllQuestions,
+  () => {
+    console.log(
+      'answersSelectedForAllQuestions',
+      answersSelectedForAllQuestions.value
+    );
+  },
+  { deep: true }
+);
 
 const isBackButtonVisible = computed(
   () =>
@@ -113,6 +175,22 @@ const fetchQuizWithDetails = async () => {
   }
 };
 
+const onAnswersSelected = (answersSelected: number[]) => {
+  answersSelectedForAllQuestions.value[currentQuestionIndex.value] =
+    answersSelected;
+};
+
+const onPendingQuizActionChange = (action: string) => {
+  showActionConfirmDialog.value = true;
+  pendingQuizAction.value = action;
+};
+
+const onActionConfirm = () => {
+  if (pendingQuizAction.value === 'EXIT_QUIZ') {
+    router.go(-1);
+  }
+};
+
 const onBack = () => {
   currentQuestionIndex.value -= 1;
   currentQuestion.value = questions.value[currentQuestionIndex.value];
@@ -127,6 +205,10 @@ const onNext = () => {
   }
 
   if (quizPhase.value === QuizPhase.IN_PROGRESS) {
+    if (currentQuestionIndex.value === questions.value.length - 1) {
+      onPendingQuizActionChange('FINISH_QUIZ');
+      return;
+    }
     currentQuestionIndex.value += 1;
     currentQuestion.value = questions.value[currentQuestionIndex.value];
     return;
