@@ -30,18 +30,18 @@ const props = defineProps({
 });
 
 const { questionContent, answers, answersSelected } = toRefs(props);
-const chosenAnswer = ref('');
+const chosenAnswer = ref(-1);
 
 watch(answersSelected, () => {
   if (answersSelected.value.length === 1) {
-    chosenAnswer.value = answersSelected.value[0] + '';
+    chosenAnswer.value = answersSelected.value[0];
     return;
   }
-  chosenAnswer.value = '';
+  chosenAnswer.value = -1;
 });
 
-const onAnswersChanged = (index: string) => {
-  emit('answersSelected', [parseInt(index)]);
+const onAnswersChanged = (index: number) => {
+  emit('answersSelected', [index]);
 };
 </script>
 
