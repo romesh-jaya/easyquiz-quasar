@@ -4,15 +4,7 @@ export const getNoOfCorrectAnswers = (
   questions: IQuestion[],
   answersSelectedForAllQuestions: number[][]
 ): number => {
-  const answersComputedIndexes = questions.map((question) => {
-    const indexes: number[] = [];
-    question.answers.forEach((answer, idx) => {
-      if (answer.isCorrect) {
-        indexes.push(idx);
-      }
-    });
-    return indexes;
-  });
+  const answersComputedIndexes = getAnswersComputedIndexes(questions);
 
   // We need to sort this array numerically, as the order in which the user selects the checkboxes of the answer may
   // vary. E.g. answersSelectedForAllQuestions[idx] may have [1,0,3] as the indexes. But we need to sort it to [0,1,3]
@@ -32,4 +24,18 @@ export const getNoOfCorrectAnswers = (
   });
 
   return correctAnswers.filter((answer) => answer).length;
+};
+
+export const getAnswersComputedIndexes = (
+  questions: IQuestion[]
+): number[][] => {
+  return questions.map((question) => {
+    const indexes: number[] = [];
+    question.answers.forEach((answer, idx) => {
+      if (answer.isCorrect) {
+        indexes.push(idx);
+      }
+    });
+    return indexes;
+  });
 };

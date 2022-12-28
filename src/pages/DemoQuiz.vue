@@ -34,6 +34,18 @@
           :no-of-correct-answers="noOfCorrectAnswers"
           :pass-mark-percentage="demoQuiz.passMarkPercentage"
         />
+        <AnswersReview
+          v-else-if="quizPhase === QuizPhase.VIEW_ANSWERS && currentQuestion"
+          :question-content="currentQuestion.questionContent"
+          :correct-answers="
+            correctAnswers ? correctAnswers[currentQuestionIndex] : []
+          "
+          :answers="currentQuestion.answers.map((answer) => answer.answer)"
+          :heading="`Question ${currentQuestionIndex + 1}/${questions.length}`"
+          :answers-selected="
+            answersSelectedForAllQuestions[currentQuestionIndex]
+          "
+        />
       </div>
       <div class="q-my-xl button-container quiz-button-container">
         <div class="exit-button-container">
@@ -96,8 +108,12 @@ import { QuizPhase } from '../enums/QuizPhase';
 import QuizStartPage from '../components/QuizStartPage.vue';
 import QuestionAndAnswers from '../components/QuestionAndAnswers.vue';
 import QuizResultsPage from '../components/QuizResultsPage.vue';
+import AnswersReview from '../components/AnswersReview.vue';
 import { IQuestion } from '../interfaces/IQuestion';
-import { getNoOfCorrectAnswers } from '../utils/scores';
+import {
+  getNoOfCorrectAnswers,
+  getAnswersComputedIndexes,
+} from '../utils/scores';
 
 const router = useRouter();
 // const $q = useQuasar();
@@ -125,8 +141,7 @@ const quizPhase = ref<QuizPhase>(QuizPhase.START_PAGE);
 const pendingQuizAction = ref('');
 const showActionConfirmDialog = ref(false);
 const noOfCorrectAnswers = ref(0);
-
-console.log('demoQuiz', demoQuiz);
+const correctAnswers = ref<number[][] | undefined>();
 
 watch(demoQuiz, () => {
   if (demoQuiz.value) {
@@ -151,6 +166,9 @@ const isBackButtonVisible = computed(
 const nextButtonLabel = computed(() => {
   if (quizPhase.value === QuizPhase.START_PAGE) {
     return 'Start Quiz';
+  }
+  if (quizPhase.value === QuizPhase.RESULTS_PAGE) {
+    return 'Review Answers';
   }
   if (
     (quizPhase.value === QuizPhase.IN_PROGRESS ||
@@ -193,6 +211,7 @@ const onActionConfirm = () => {
     questions.value,
     answersSelectedForAllQuestions.value
   );
+  correctAnswers.value = getAnswersComputedIndexes(questions.value);
   quizPhase.value = QuizPhase.RESULTS_PAGE;
 };
 
@@ -216,6 +235,23 @@ const onNext = () => {
     }
     currentQuestionIndex.value += 1;
     currentQuestion.value = questions.value[currentQuestionIndex.value];
+    return;
+  }
+
+  if (quizPhase.value === QuizPhase.VIEW_ANSWERS) {
+    if (currentQuestionIndex.value === questions.value.length - 1) {
+      router.go(-1);
+      return;
+    }
+    currentQuestionIndex.value += 1;
+    currentQuestion.value = questions.value[currentQuestionIndex.value];
+    return;
+  }
+
+  if (quizPhase.value === QuizPhase.RESULTS_PAGE) {
+    quizPhase.value = QuizPhase.VIEW_ANSWERS;
+    currentQuestionIndex.value = 0;
+    currentQuestion.value = questions.value[0];
     return;
   }
 };
