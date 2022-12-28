@@ -13,7 +13,7 @@
         {{ `Demo quiz - ${demoQuiz.quizName}` }}
       </h3>
       <div class="inner-container">
-        <QuizStartPage v-if="quizPhase === QuizPhase.STARTPAGE" />
+        <QuizStartPage v-if="quizPhase === QuizPhase.START_PAGE" />
         <QuestionAndAnswers
           v-else-if="quizPhase === QuizPhase.IN_PROGRESS && currentQuestion"
           :question-content="currentQuestion.questionContent"
@@ -113,9 +113,10 @@ const currentQuestion = ref<IQuestion | undefined>();
 const currentQuestionIndex = ref<number>(-1);
 const loading = computed(() => myQuizWithDetailsStore.loading);
 const error = ref('');
-const quizPhase = ref<QuizPhase>(QuizPhase.STARTPAGE);
+const quizPhase = ref<QuizPhase>(QuizPhase.START_PAGE);
 const pendingQuizAction = ref('');
 const showActionConfirmDialog = ref(false);
+const noOfCorrectAnswers = ref(0);
 
 watch(demoQuiz, () => {
   if (demoQuiz.value) {
@@ -124,27 +125,11 @@ watch(demoQuiz, () => {
 });
 
 watch(questions, () => {
-  console.log('questions', questions.value);
   answersSelectedForAllQuestions.value = Array.from(
     { length: questions.value.length },
     () => []
   );
 });
-
-watch(currentQuestionIndex, () => {
-  console.log('currentQuestionIndex', currentQuestionIndex.value);
-});
-
-watch(
-  answersSelectedForAllQuestions,
-  () => {
-    console.log(
-      'answersSelectedForAllQuestions',
-      answersSelectedForAllQuestions.value
-    );
-  },
-  { deep: true }
-);
 
 const isBackButtonVisible = computed(
   () =>
@@ -154,7 +139,7 @@ const isBackButtonVisible = computed(
 );
 
 const nextButtonLabel = computed(() => {
-  if (quizPhase.value === QuizPhase.STARTPAGE) {
+  if (quizPhase.value === QuizPhase.START_PAGE) {
     return 'Start Quiz';
   }
   if (
@@ -167,6 +152,37 @@ const nextButtonLabel = computed(() => {
 
   return 'Finish';
 });
+
+const getNoOfCorrectAnswers = () => {
+  const answersComputedIndexes = questions.value.map((question) => {
+    const indexes: number[] = [];
+    question.answers.forEach((answer, idx) => {
+      if (answer.isCorrect) {
+        indexes.push(idx);
+      }
+    });
+    return indexes;
+  });
+
+  // We need to sort this array numerically, as the order in which the user selects the checkboxes of the answer may
+  // vary. E.g. answersSelectedForAllQuestions[idx] may have [1,0,3] as the indexes. But we need to sort it to [0,1,3]
+  // in order to compare with answersComputedIndexes
+  const sortedAnswersSelectedForAllQuestions =
+    answersSelectedForAllQuestions.value.map((answers) => {
+      return answers.sort((a, b) => {
+        return a - b;
+      });
+    });
+
+  const correctAnswers = answersComputedIndexes.map((computed, idx) => {
+    const selectedAnswersString = JSON.stringify(
+      sortedAnswersSelectedForAllQuestions[idx]
+    );
+    return selectedAnswersString === JSON.stringify(computed);
+  });
+
+  noOfCorrectAnswers.value = correctAnswers.filter((answer) => answer).length;
+};
 
 const fetchQuizWithDetails = async () => {
   if (quizId.value) {
@@ -192,7 +208,10 @@ const onPendingQuizActionChange = (action: string) => {
 const onActionConfirm = () => {
   if (pendingQuizAction.value === 'EXIT_QUIZ') {
     router.go(-1);
+    return;
   }
+  getNoOfCorrectAnswers();
+  //quizPhase.value = QuizPhase.RESULTS_PAGE;
 };
 
 const onBack = () => {
@@ -201,7 +220,7 @@ const onBack = () => {
 };
 
 const onNext = () => {
-  if (quizPhase.value === QuizPhase.STARTPAGE) {
+  if (quizPhase.value === QuizPhase.START_PAGE) {
     quizPhase.value = QuizPhase.IN_PROGRESS;
     currentQuestionIndex.value = 0;
     currentQuestion.value = questions.value[0];

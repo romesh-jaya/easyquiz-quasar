@@ -29,9 +29,9 @@
         type="textarea"
         :disable="saving || deleting"
       />
-      <small v-if="questionId" class="text-body3 q-pa-xs text-left flex">
+      <small v-if="questionMatched" class="text-body3 q-pa-xs text-left flex">
         <span class="attribute-label-small">Last Updated: </span>
-        {{ getLastUpdatedHumanized(myQuizWithDetails.lastUpdated) }}
+        {{ getLastUpdatedHumanized(questionMatched.lastUpdated) }}
       </small>
       <h3 class="text-h5 text-accent">Answers</h3>
       <div class="q-my-lg button-container">

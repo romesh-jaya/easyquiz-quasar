@@ -1,6 +1,6 @@
 export enum QuizPhase {
-  STARTPAGE,
+  START_PAGE,
   IN_PROGRESS,
-  ENDPAGE,
+  RESULTS_PAGE,
   VIEW_ANSWERS,
 }

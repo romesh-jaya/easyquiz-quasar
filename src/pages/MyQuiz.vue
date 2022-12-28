@@ -285,8 +285,6 @@ const onStateChangePending = (newStatus: string) => {
 };
 
 const onStateChange = async (newState?: string) => {
-  console.log('newState', newState);
-  console.log('pendingStatusChangeTo.value', pendingStatusChangeTo.value);
   const changeStateTo = newState ?? pendingStatusChangeTo.value;
   if (changeStateTo === 'published' && questionsList.value.length === 0) {
     $q.notify({

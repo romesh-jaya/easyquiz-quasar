@@ -1,6 +1,6 @@
 # EasyQuiz (Quasar with Vite)
 
-Application to create and share your Quizzes with others. Ideal for a school or educational institute.
+Application to create and share your Quizzes with others. Ideal for a school or educational institute. Users have the ability to select a single answer or multiple answers, as suits the question.
 
 The app is hosted here:
 https://easyquiz-romesh-jaya.vercel.app/
@@ -31,6 +31,10 @@ All fields mentioned in .env.example must be filled with correct values and rena
 ## Backend Server Source
 
 Can be found [here](https://github.com/romesh-jaya/easyquiz-backend-nodejs).
+
+## TODO
+
+Share the quiz that the user created to others via an email link.
 
 ## Install the dependencies
 
