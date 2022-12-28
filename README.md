@@ -34,7 +34,8 @@ Can be found [here](https://github.com/romesh-jaya/easyquiz-backend-nodejs).
 
 ## TODO
 
-Share the quiz that the user created to others via an email link.
+- Share the quiz that the user created to others via an email link.
+- Add time for quiz
 
 ## Install the dependencies
 

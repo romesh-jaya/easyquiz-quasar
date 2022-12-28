@@ -37,12 +37,12 @@
         <AnswersReview
           v-else-if="quizPhase === QuizPhase.VIEW_ANSWERS && currentQuestion"
           :question-content="currentQuestion.questionContent"
-          :correct-answers="
+          :correct-answers-indexes="
             correctAnswers ? correctAnswers[currentQuestionIndex] : []
           "
           :answers="currentQuestion.answers.map((answer) => answer.answer)"
           :heading="`Question ${currentQuestionIndex + 1}/${questions.length}`"
-          :answers-selected="
+          :answers-selected-indexes="
             answersSelectedForAllQuestions[currentQuestionIndex]
           "
         />

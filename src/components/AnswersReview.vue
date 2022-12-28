@@ -5,12 +5,20 @@
       {{ questionContent }}
     </div>
     <div v-if="multipleAnswersExist">
-      <div v-for="(item, index) in answers" :key="index">
+      <div
+        v-for="(item, index) in answers"
+        :key="index"
+        class="q-my-sm"
+        :class="{ 'green-border': correctAnswersBooleans[index] }"
+      >
         <q-checkbox
           v-model="chosenAnswersCheckbox"
           :val="index"
           :label="item"
           disable
+          :color="correctAnswersBooleans[index] ? 'green' : 'red'"
+          :checked-icon="correctAnswersBooleans[index] ? 'check_box' : 'cancel'"
+          unchecked-icon="check_box_outline_blank"
         />
       </div>
     </div>
@@ -18,18 +26,16 @@
       <div
         v-for="(item, index) in answers"
         :key="index"
-        :class="{ 'green-border': index === correctAnswers[0] }"
+        :class="{ 'green-border': index === correctAnswersIndexes[0] }"
       >
         <q-radio
           v-model="chosenAnswerRadio"
           :val="index"
           :label="item"
           disable
-          :checked-icon="
-            answersSelected[0] === correctAnswers[0] ? 'task_alt' : 'cancel'
-          "
+          :checked-icon="isAnswerCorrect ? 'task_alt' : 'cancel'"
           unchecked-icon="panorama_fish_eye"
-          :color="answersSelected[0] === correctAnswers[0] ? 'green' : 'red'"
+          :color="isAnswerCorrect ? 'green' : 'red'"
         />
       </div>
     </div>
@@ -51,44 +57,43 @@ const props = defineProps({
   heading: { type: String, required: true },
   questionContent: { type: String, required: true },
   answers: { type: Array<string>, required: true },
-  answersSelected: { type: Array<number>, required: true },
-  correctAnswers: { type: Array<number>, required: true },
+  answersSelectedIndexes: { type: Array<number>, required: true },
+  correctAnswersIndexes: { type: Array<number>, required: true },
 });
 
-const { questionContent, answers, answersSelected, correctAnswers } =
-  toRefs(props);
+const {
+  questionContent,
+  answers,
+  answersSelectedIndexes,
+  correctAnswersIndexes,
+} = toRefs(props);
 const chosenAnswerRadio = ref(-1);
 const chosenAnswersCheckbox = ref<number[]>([]);
 
-const multipleAnswersExist = computed(() => correctAnswers.value.length > 1);
+const multipleAnswersExist = computed(
+  () => correctAnswersIndexes.value.length > 1
+);
+const correctAnswersBooleans = computed(() => {
+  return answers.value.map(
+    (_, idx) => correctAnswersIndexes.value.includes(idx) ?? false
+  );
+});
 const isAnswerCorrect = computed(
   () =>
-    JSON.stringify(answersSelected.value) ===
-    JSON.stringify(correctAnswers.value)
+    JSON.stringify(answersSelectedIndexes.value) ===
+    JSON.stringify(correctAnswersIndexes.value)
 );
 
-console.log('multipleAnswersExist', multipleAnswersExist.value);
-console.log('answersSelected', answersSelected.value);
-console.log('correctAnswers', correctAnswers.value);
-
-watch(answersSelected, () => {
+watch(answersSelectedIndexes, () => {
   if (!multipleAnswersExist.value) {
-    if (answersSelected.value.length === 1) {
-      chosenAnswerRadio.value = answersSelected.value[0];
+    if (answersSelectedIndexes.value.length === 1) {
+      chosenAnswerRadio.value = answersSelectedIndexes.value[0];
       return;
     }
     chosenAnswerRadio.value = -1;
   } else {
-    chosenAnswersCheckbox.value = answersSelected.value;
+    chosenAnswersCheckbox.value = answersSelectedIndexes.value;
   }
-});
-
-watch(correctAnswers, () => {
-  console.log('correctAnswers', correctAnswers.value);
-});
-
-watch(answersSelected, () => {
-  console.log('answersSelected', answersSelected.value);
 });
 </script>
 
