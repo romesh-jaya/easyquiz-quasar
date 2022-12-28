@@ -4,13 +4,23 @@
     <div class="q-mb-md">
       {{ questionContent }}
     </div>
-    <div>
+    <div v-if="multipleAnswersExist">
       <div v-for="(item, index) in answers" :key="index">
-        <q-radio
-          v-model="chosenAnswer"
+        <q-checkbox
+          v-model="chosenAnswersCheckbox"
           :val="index"
           :label="item"
-          @update:model-value="onAnswersChanged"
+          @update:model-value="onAnswersChangedCheckbox"
+        />
+      </div>
+    </div>
+    <div v-else>
+      <div v-for="(item, index) in answers" :key="index">
+        <q-radio
+          v-model="chosenAnswerRadio"
+          :val="index"
+          :label="item"
+          @update:model-value="onAnswersChangedRadio"
         />
       </div>
     </div>
@@ -27,20 +37,31 @@ const props = defineProps({
   questionContent: { type: String, required: true },
   answers: { type: Array<string>, required: true },
   answersSelected: { type: Array<number>, required: true },
+  multipleAnswersExist: { type: Boolean, required: true },
 });
 
-const { questionContent, answers, answersSelected } = toRefs(props);
-const chosenAnswer = ref(-1);
+const { questionContent, answers, answersSelected, multipleAnswersExist } =
+  toRefs(props);
+const chosenAnswerRadio = ref(-1);
+const chosenAnswersCheckbox = ref<number[]>([]);
 
 watch(answersSelected, () => {
-  if (answersSelected.value.length === 1) {
-    chosenAnswer.value = answersSelected.value[0];
-    return;
+  if (!multipleAnswersExist.value) {
+    if (answersSelected.value.length === 1) {
+      chosenAnswerRadio.value = answersSelected.value[0];
+      return;
+    }
+    chosenAnswerRadio.value = -1;
+  } else {
+    chosenAnswersCheckbox.value = answersSelected.value;
   }
-  chosenAnswer.value = -1;
 });
 
-const onAnswersChanged = (index: number) => {
+const onAnswersChangedCheckbox = (index: number[]) => {
+  emit('answersSelected', index);
+};
+
+const onAnswersChangedRadio = (index: number) => {
   emit('answersSelected', [index]);
 };
 </script>

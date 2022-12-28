@@ -17,6 +17,10 @@
         <QuestionAndAnswers
           v-else-if="quizPhase === QuizPhase.IN_PROGRESS && currentQuestion"
           :question-content="currentQuestion.questionContent"
+          :multiple-answers-exist="
+            currentQuestion.answers.filter((answer) => answer.isCorrect)
+              .length > 1
+          "
           :answers="currentQuestion.answers.map((answer) => answer.answer)"
           :heading="`Question ${currentQuestionIndex + 1}/${questions.length}`"
           :answers-selected="
