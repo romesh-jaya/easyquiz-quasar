@@ -12,7 +12,7 @@ const quizDbToClient = (dataOne: any): IQuiz => {
   return {
     quizName: dataOne.name,
     description: dataOne.description,
-    passMarkPercentage: dataOne.pass_mark_percentage,
+    passMarkPercentage: Number.parseInt(dataOne.pass_mark_percentage),
     createdByUser: dataOne.created_by_user,
     id: dataOne.id,
     status:

@@ -28,6 +28,12 @@
           "
           @answers-selected="onAnswersSelected"
         />
+        <QuizResultsPage
+          v-else-if="quizPhase === QuizPhase.RESULTS_PAGE"
+          :no-of-total-questions="questions.length"
+          :no-of-correct-answers="noOfCorrectAnswers"
+          :pass-mark-percentage="demoQuiz.passMarkPercentage"
+        />
       </div>
       <div class="q-my-xl button-container quiz-button-container">
         <div class="exit-button-container">
@@ -89,7 +95,9 @@ import PageContainerResponsive from '../components/PageContainerResponsive.vue';
 import { QuizPhase } from '../enums/QuizPhase';
 import QuizStartPage from '../components/QuizStartPage.vue';
 import QuestionAndAnswers from '../components/QuestionAndAnswers.vue';
+import QuizResultsPage from '../components/QuizResultsPage.vue';
 import { IQuestion } from '../interfaces/IQuestion';
+import { getNoOfCorrectAnswers } from '../utils/scores';
 
 const router = useRouter();
 // const $q = useQuasar();
@@ -117,6 +125,8 @@ const quizPhase = ref<QuizPhase>(QuizPhase.START_PAGE);
 const pendingQuizAction = ref('');
 const showActionConfirmDialog = ref(false);
 const noOfCorrectAnswers = ref(0);
+
+console.log('demoQuiz', demoQuiz);
 
 watch(demoQuiz, () => {
   if (demoQuiz.value) {
@@ -153,37 +163,6 @@ const nextButtonLabel = computed(() => {
   return 'Finish';
 });
 
-const getNoOfCorrectAnswers = () => {
-  const answersComputedIndexes = questions.value.map((question) => {
-    const indexes: number[] = [];
-    question.answers.forEach((answer, idx) => {
-      if (answer.isCorrect) {
-        indexes.push(idx);
-      }
-    });
-    return indexes;
-  });
-
-  // We need to sort this array numerically, as the order in which the user selects the checkboxes of the answer may
-  // vary. E.g. answersSelectedForAllQuestions[idx] may have [1,0,3] as the indexes. But we need to sort it to [0,1,3]
-  // in order to compare with answersComputedIndexes
-  const sortedAnswersSelectedForAllQuestions =
-    answersSelectedForAllQuestions.value.map((answers) => {
-      return answers.sort((a, b) => {
-        return a - b;
-      });
-    });
-
-  const correctAnswers = answersComputedIndexes.map((computed, idx) => {
-    const selectedAnswersString = JSON.stringify(
-      sortedAnswersSelectedForAllQuestions[idx]
-    );
-    return selectedAnswersString === JSON.stringify(computed);
-  });
-
-  noOfCorrectAnswers.value = correctAnswers.filter((answer) => answer).length;
-};
-
 const fetchQuizWithDetails = async () => {
   if (quizId.value) {
     try {
@@ -210,8 +189,11 @@ const onActionConfirm = () => {
     router.go(-1);
     return;
   }
-  getNoOfCorrectAnswers();
-  //quizPhase.value = QuizPhase.RESULTS_PAGE;
+  noOfCorrectAnswers.value = getNoOfCorrectAnswers(
+    questions.value,
+    answersSelectedForAllQuestions.value
+  );
+  quizPhase.value = QuizPhase.RESULTS_PAGE;
 };
 
 const onBack = () => {
