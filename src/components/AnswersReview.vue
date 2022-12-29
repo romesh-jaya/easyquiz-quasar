@@ -67,9 +67,6 @@ const {
   answersSelectedIndexes,
   correctAnswersIndexes,
 } = toRefs(props);
-const chosenAnswerRadio = ref(-1);
-const chosenAnswersCheckbox = ref<number[]>([]);
-
 const multipleAnswersExist = computed(
   () => correctAnswersIndexes.value.length > 1
 );
@@ -82,6 +79,13 @@ const isAnswerCorrect = computed(
   () =>
     JSON.stringify(answersSelectedIndexes.value) ===
     JSON.stringify(correctAnswersIndexes.value)
+);
+
+const chosenAnswerRadio = ref(
+  !multipleAnswersExist.value ? answersSelectedIndexes.value[0] : -1
+);
+const chosenAnswersCheckbox = ref<number[]>(
+  multipleAnswersExist.value ? answersSelectedIndexes.value : []
 );
 
 watch(answersSelectedIndexes, () => {
