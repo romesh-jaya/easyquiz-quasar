@@ -85,6 +85,10 @@
               <span class="attribute-label">Status: </span
               >{{ myQuizWithDetails.status }}
             </div>
+            <div class="text-body2 q-pa-xs text-left flex">
+              <span class="attribute-label">Revision: </span
+              >{{ myQuizWithDetails.revision }}
+            </div>
           </div>
         </q-card-section>
       </q-card>

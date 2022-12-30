@@ -29,10 +29,28 @@
         type="textarea"
         :disable="saving || deleting"
       />
-      <small v-if="questionMatched" class="text-body3 q-pa-xs text-left flex">
-        <span class="attribute-label-small">Last Updated: </span>
-        {{ getLastUpdatedHumanized(questionMatched.lastUpdated) }}
-      </small>
+      <div v-if="questionMatched" class="text-left">
+        <q-btn
+          flat
+          dense
+          round
+          icon="info"
+          aria-label="More info"
+          class="text-primary"
+          @click="showMoreInfo = !showMoreInfo"
+        >
+          <q-tooltip>
+            <small class="text-body2 text-left flex">
+              <span class="attribute-label-small">Last Updated: </span>
+              {{ getLastUpdatedHumanized(questionMatched.lastUpdated) }}
+            </small>
+            <small class="text-body2 text-left flex">
+              <span class="attribute-label-small">Revision: </span>
+              {{ questionMatched.revision }}
+            </small>
+          </q-tooltip>
+        </q-btn>
+      </div>
       <h3 class="text-h5 text-accent">Answers</h3>
       <div class="q-my-lg button-container">
         <q-toggle
@@ -201,6 +219,7 @@ const deleting = ref(false);
 const error = ref('');
 const generalError = ref('');
 const showDeleteConfirmDialog = ref(false);
+const showMoreInfo = ref(false);
 
 const questionContent = ref(
   questionMatched ? questionMatched.questionContent : ''

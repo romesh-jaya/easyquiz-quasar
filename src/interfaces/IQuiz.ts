@@ -7,5 +7,6 @@ export interface IQuiz {
   statusDB: string;
   status: string;
   questionOrder?: string[];
+  revision: number;
   lastUpdated: Date;
 }

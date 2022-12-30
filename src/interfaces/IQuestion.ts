@@ -5,5 +5,6 @@ export interface IQuestion {
   questionContent: string;
   answers: IAnswer[];
   id: string;
+  revision: number;
   lastUpdated: Date;
 }

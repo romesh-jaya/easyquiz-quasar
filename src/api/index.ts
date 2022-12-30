@@ -20,6 +20,7 @@ const quizDbToClient = (dataOne: any): IQuiz => {
         ?.clientValue || 'Unknown',
     statusDB: dataOne.status,
     questionOrder: dataOne.question_order,
+    revision: dataOne.revision,
     lastUpdated: new Date(dataOne.last_updated),
   };
 };
@@ -30,6 +31,7 @@ const questionDbToClient = (dataOne: any): IQuestion => {
     questionContent: dataOne.question_content,
     answers: JSON.parse(dataOne.answers),
     id: dataOne.id,
+    revision: dataOne.revision,
     lastUpdated: new Date(dataOne.last_updated),
   };
 };
