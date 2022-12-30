@@ -48,7 +48,7 @@ export const getUserData = async (email: string): Promise<IUserDataDB> => {
 };
 
 export const getMyQuizzes = async (): Promise<IQuiz[]> => {
-  const response = await api.get(`${getBackendURL()}/api/auth/quizzes`);
+  const response = await api.get(`${getBackendURL()}/api/auth/my-quizzes`);
   const quizzes = response.data.map((dataOne: any) => quizDbToClient(dataOne));
   return quizzes;
 };
@@ -57,7 +57,7 @@ export const getQuizWithDetails = async (
   quizId: string
 ): Promise<IQuizWithDetails> => {
   const response = await api.get(
-    `${getBackendURL()}/api/auth/quizzes/${quizId}`
+    `${getBackendURL()}/api/auth/my-quizzes/${quizId}`
   );
   if (response.data) {
     const quiz = {
@@ -79,7 +79,7 @@ export const saveQuizData = async (
 ): Promise<IIdAPIError> => {
   if (id) {
     const response = await api.put(
-      `${getBackendURL()}/api/auth/quizzes/${id}`,
+      `${getBackendURL()}/api/auth/my-quizzes/${id}`,
       {
         quizName,
         description,
@@ -89,7 +89,7 @@ export const saveQuizData = async (
     return response.data as IIdAPIError;
   }
 
-  const response = await api.post(`${getBackendURL()}/api/auth/quizzes`, {
+  const response = await api.post(`${getBackendURL()}/api/auth/my-quizzes`, {
     quizName,
     description,
     passMarkPercentage,
@@ -102,7 +102,7 @@ export const saveQuestionOrder = async (
   quizId: string
 ): Promise<IIdAPIError> => {
   const response = await api.post(
-    `${getBackendURL()}/api/auth/quizzes/${quizId}/update-question-order`,
+    `${getBackendURL()}/api/auth/my-quizzes/${quizId}/update-question-order`,
     {
       questionOrder,
     }
@@ -115,7 +115,7 @@ export const updateQuizStatus = async (
   quizId: string
 ): Promise<IIdAPIError> => {
   const response = await api.post(
-    `${getBackendURL()}/api/auth/quizzes/${quizId}/update-quiz-status`,
+    `${getBackendURL()}/api/auth/my-quizzes/${quizId}/update-quiz-status`,
     {
       status: newStatus,
     }
@@ -131,7 +131,7 @@ export const saveQuestionData = async (
 ): Promise<IAPIError> => {
   if (id) {
     const response = await api.put(
-      `${getBackendURL()}/api/auth/quizzes/${quizId}/questions/${id}`,
+      `${getBackendURL()}/api/auth/my-quizzes/${quizId}/questions/${id}`,
       {
         questionContent,
         answers,
@@ -141,7 +141,7 @@ export const saveQuestionData = async (
   }
 
   const response = await api.post(
-    `${getBackendURL()}/api/auth/quizzes/${quizId}/questions`,
+    `${getBackendURL()}/api/auth/my-quizzes/${quizId}/questions`,
     {
       questionContent,
       answers,
@@ -155,7 +155,7 @@ export const deleteQuestion = async (
   id: string
 ): Promise<IAPIError> => {
   const response = await api.delete(
-    `${getBackendURL()}/api/auth/quizzes/${quizId}/questions/${id}`
+    `${getBackendURL()}/api/auth/my-quizzes/${quizId}/questions/${id}`
   );
   return response.data as IAPIError;
 };
