@@ -21,7 +21,10 @@
             <q-list style="min-width: 200px">
               <q-item
                 clickable
-                :disable="myQuizWithDetails?.statusDB === 'archived'"
+                :disable="
+                  myQuizWithDetails.statusDB === 'archived' ||
+                  myQuizWithDetails.questions.length === 0
+                "
                 @click="onDemoQuiz"
               >
                 <q-item-section>Demo Quiz</q-item-section>
@@ -33,11 +36,18 @@
               >
                 <q-item-section>Edit Quiz Details</q-item-section>
               </q-item>
+              <q-item
+                clickable
+                :disable="myQuizWithDetails.statusDB !== 'published'"
+                @click="showInviteQuizTakerDialog = true"
+              >
+                <q-item-section>Invite to take Quiz</q-item-section>
+              </q-item>
               <q-separator />
               <q-item
                 :disable="
-                  myQuizWithDetails?.statusDB === 'published' ||
-                  myQuizWithDetails?.statusDB === 'archived'
+                  myQuizWithDetails.statusDB === 'published' ||
+                  myQuizWithDetails.statusDB === 'archived'
                 "
                 clickable
                 @click="onStateChange('published')"
@@ -46,8 +56,8 @@
               </q-item>
               <q-item
                 :disable="
-                  myQuizWithDetails?.statusDB === 'unpublished' ||
-                  myQuizWithDetails?.statusDB === 'archived'
+                  myQuizWithDetails.statusDB === 'unpublished' ||
+                  myQuizWithDetails.statusDB === 'archived'
                 "
                 clickable
                 @click="onStateChangePending('unpublished')"
@@ -55,7 +65,7 @@
                 <q-item-section>Unpublish</q-item-section>
               </q-item>
               <q-item
-                :disable="myQuizWithDetails?.statusDB === 'archived'"
+                :disable="myQuizWithDetails.statusDB === 'archived'"
                 clickable
                 @click="onStateChangePending('archived')"
               >
@@ -205,6 +215,39 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
+      <q-dialog v-model="showInviteQuizTakerDialog" persistent>
+        <q-card>
+          <q-card-section class="row items-center">
+            <q-avatar icon="help_outline" color="primary" text-color="white" />
+            <div class="q-pa-md">
+              <div class="q-ml-sm">Send invite to:</div>
+              <q-input
+                ref="emailRef"
+                v-model="email"
+                outlined
+                dense
+                type="email"
+                placeholder="Email"
+                :rules="[(val) => !!val || '* Required', emailValidateSuccess]"
+                lazy-rules
+                class="email-field"
+                @update:model-value="onFieldChange"
+              />
+            </div>
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn v-close-popup flat label="Cancel" color="accent" />
+            <q-btn
+              flat
+              label="Yes"
+              color="accent"
+              :disabled="!email"
+              @click="onInviteQuizTaker"
+            />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </div>
   </PageContainerResponsive>
 </template>
@@ -218,9 +261,10 @@ import type { SortableOptions } from 'sortablejs';
 import Sortable from 'sortablejs';
 import { useMyQuizWithDetailsStore } from '../stores/myQuizWithDetails';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
-import { saveQuestionOrder, updateQuizStatus } from '../api';
+import { saveQuestionOrder, updateQuizStatus, inviteQuizTaker } from '../api';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
 import { getLastUpdatedHumanized } from '../utils/common';
+import { emailValid } from '../utils/email';
 
 interface IQuestionInfo {
   questionContent: string;
@@ -258,7 +302,11 @@ const updatesNotAllowed = computed(
     myQuizWithDetails.value?.statusDB === 'published'
 );
 const showStatusChangeConfirmDialog = ref(false);
+const showInviteQuizTakerDialog = ref(false);
 const pendingStatusChangeTo = ref('');
+const generalError = ref('');
+const email = ref('');
+const emailRef = ref();
 
 watch(myQuizWithDetails, () => {
   if (myQuizWithDetails.value) {
@@ -373,6 +421,44 @@ const onSubmit = async () => {
   fetchQuizWithDetails(true);
 };
 
+const onInviteQuizTaker = async () => {
+  emailRef.value.validate();
+
+  if (emailRef.value.hasError) {
+    return;
+  }
+
+  saving.value = true;
+
+  try {
+    const response = await inviteQuizTaker(id.value, email.value);
+
+    if (response.error) {
+      $q.notify({
+        type: 'negative',
+        message: response.error,
+      });
+      return;
+    }
+
+    $q.notify({
+      type: 'positive',
+      message: 'User invited to take quiz',
+    });
+    showInviteQuizTakerDialog.value = false;
+  } catch (err) {
+    console.error(err);
+
+    $q.notify({
+      type: 'negative',
+      message: 'Unknown error occured while inviting user to take quiz',
+    });
+    return;
+  } finally {
+    saving.value = false;
+  }
+};
+
 const fetchQuizWithDetails = async (forceFetch = false) => {
   try {
     await myQuizWithDetailsStore.fetchQuiz(id.value, forceFetch);
@@ -403,6 +489,14 @@ const onAddQuestion = () => {
 onMounted(() => {
   fetchQuizWithDetails();
 });
+
+const onFieldChange = () => {
+  generalError.value = '';
+};
+
+const emailValidateSuccess = () => {
+  return emailValid(email.value) || 'Please enter a valid email address';
+};
 </script>
 
 <style lang="scss">
@@ -449,5 +543,10 @@ onMounted(() => {
 
 .menu-button {
   height: 32px;
+}
+
+.email-field {
+  min-width: 250px;
+  max-width: 300px;
 }
 </style>

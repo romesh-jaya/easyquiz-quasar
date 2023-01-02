@@ -159,3 +159,16 @@ export const deleteQuestion = async (
   );
   return response.data as IAPIError;
 };
+
+export const inviteQuizTaker = async (
+  quizId: string,
+  quizTaker: string
+): Promise<IIdAPIError> => {
+  const response = await api.post(
+    `${getBackendURL()}/api/auth/my-quizzes/${quizId}/invite-quiz-taker`,
+    {
+      quizTaker,
+    }
+  );
+  return response.data as IIdAPIError;
+};
