@@ -231,18 +231,26 @@
                 :rules="[(val) => !!val || '* Required', emailValidateSuccess]"
                 lazy-rules
                 class="email-field"
+                :disable="savingInvite"
                 @update:model-value="onFieldChange"
               />
             </div>
           </q-card-section>
 
           <q-card-actions align="right">
-            <q-btn v-close-popup flat label="Cancel" color="accent" />
+            <q-btn
+              v-close-popup
+              flat
+              label="Cancel"
+              color="accent"
+              :disabled="savingInvite"
+            />
             <q-btn
               flat
               label="Yes"
               color="accent"
               :disabled="!email"
+              :loading="savingInvite"
               @click="onInviteQuizTaker"
             />
           </q-card-actions>
@@ -307,6 +315,7 @@ const pendingStatusChangeTo = ref('');
 const generalError = ref('');
 const email = ref('');
 const emailRef = ref();
+const savingInvite = ref(false);
 
 watch(myQuizWithDetails, () => {
   if (myQuizWithDetails.value) {
@@ -428,7 +437,7 @@ const onInviteQuizTaker = async () => {
     return;
   }
 
-  saving.value = true;
+  savingInvite.value = true;
 
   try {
     const response = await inviteQuizTaker(id.value, email.value);
@@ -455,7 +464,7 @@ const onInviteQuizTaker = async () => {
     });
     return;
   } finally {
-    saving.value = false;
+    savingInvite.value = false;
   }
 };
 
