@@ -27,7 +27,7 @@
         lazy-rules
         class="input-textarea q-pb-xs"
         type="textarea"
-        :disable="saving || deleting"
+        :disable="saving"
       />
       <div v-if="questionMatched" class="text-left">
         <q-btn
@@ -60,7 +60,7 @@
           @update:model-value="onSortAnswerToggle"
         />
         <q-btn
-          :disabled="answerSortMode || saving || deleting"
+          :disabled="answerSortMode || saving"
           color="secondary"
           icon="add_circle_outline"
           class="add-answer"
@@ -102,15 +102,15 @@
             :rules="[(val) => !!val || '* Required']"
             lazy-rules
             class="answer"
-            :disable="saving || deleting"
+            :disable="saving"
           />
           <q-toggle
             v-model="item.isCorrect"
             label="Correct answer"
-            :disable="saving || deleting"
+            :disable="saving"
             :indeterminate-value="false"
           />
-          <q-btn flat dense round :disabled="saving || deleting">
+          <q-btn flat dense round :disabled="saving">
             <q-icon
               size="1.5em"
               name="close"
@@ -122,26 +122,18 @@
       </div>
 
       <div class="q-my-xl button-container">
-        <q-btn
-          color="secondary"
-          :loading="saving"
-          :disabled="deleting"
-          @click="onSubmit"
-          >{{ questionId ? 'Save question' : 'Create' }}</q-btn
-        >
+        <q-btn color="secondary" :loading="saving" @click="onSubmit">{{
+          questionId ? 'Save question' : 'Create'
+        }}</q-btn>
         <q-btn
           v-if="questionId"
           color="negative"
-          :loading="deleting"
           :disabled="saving"
           @click="showDeleteConfirmDialog = true"
         >
           Delete question
         </q-btn>
-        <q-btn
-          color="accent"
-          :disabled="saving || deleting"
-          @click="$router.go(-1)"
+        <q-btn color="accent" :disabled="saving" @click="$router.go(-1)"
           >Back</q-btn
         >
       </div>
@@ -158,27 +150,18 @@
       </div>
     </div>
     <div>
-      <q-dialog v-model="showDeleteConfirmDialog" persistent>
-        <q-card>
-          <q-card-section class="row items-center">
-            <q-avatar icon="help_outline" color="primary" text-color="white" />
-            <span class="q-ml-sm"
-              >Are you sure you wish to delete this question?</span
-            >
-          </q-card-section>
-
-          <q-card-actions align="right">
-            <q-btn v-close-popup flat label="No" color="accent" />
-            <q-btn
-              v-close-popup
-              flat
-              label="Yes"
-              color="accent"
-              @click="deleteQuestionInternal"
-            />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
+      <CustomDialog
+        :show-dialog="showDeleteConfirmDialog"
+        negative-label="No"
+        positive-label="Yes"
+        :saving-in-progress="deleting"
+        @negative-button-clicked="showDeleteConfirmDialog = false"
+        @positive-button-clicked="deleteQuestionInternal"
+      >
+        <span class="q-ml-sm"
+          >Are you sure you wish to delete this question?</span
+        >
+      </CustomDialog>
     </div>
   </PageContainerResponsive>
 </template>
@@ -192,6 +175,7 @@ import { useQuasar } from 'quasar';
 import type { SortableOptions } from 'sortablejs';
 import Sortable from 'sortablejs';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
+import CustomDialog from '../components/CustomDialog.vue';
 import { saveQuestionData, deleteQuestion } from '../api';
 import { IAnswer } from '../interfaces/IAnswer';
 import { useMyQuizWithDetailsStore } from '../stores/myQuizWithDetails';
@@ -258,7 +242,7 @@ watch(myQuizWithDetails, () => {
 
 const sortableOptions = computed<SortableOptions>(() => {
   return {
-    disabled: saving.value || deleting.value,
+    disabled: saving.value,
     draggable: '.draggable',
     ghostClass: 'ghost',
     dragClass: 'drag',
@@ -289,9 +273,6 @@ const onSortAnswerToggle = (isToggleOn: boolean) => {
 };
 
 const onAnswerRemove = (index: number) => {
-  if (saving.value || deleting.value) {
-    return;
-  }
   answersList.value.splice(index, 1);
 };
 
@@ -365,6 +346,7 @@ const deleteQuestionInternal = async () => {
         message: 'Question deleted',
       });
       browseBackToQuiz();
+      showDeleteConfirmDialog.value = false;
     }
   } catch (err) {
     console.error(err);
