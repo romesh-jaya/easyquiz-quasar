@@ -190,72 +190,48 @@
       </div>
     </div>
     <div>
-      <q-dialog v-model="showStatusChangeConfirmDialog" persistent>
-        <q-card>
-          <q-card-section class="row items-center">
-            <q-avatar icon="help_outline" color="primary" text-color="white" />
-            <span class="q-ml-sm"
-              >{{
-                pendingStatusChangeTo === 'unpublished'
-                  ? 'Are you sure you wish to Unpublish this question? Any unaccepted invitations will not be able to access this quiz.'
-                  : 'Are you sure you wish to Archive this question? No further changes will be possible.'
-              }}
-            </span>
-          </q-card-section>
+      <CustomDialog
+        :show-dialog="showStatusChangeConfirmDialog"
+        negative-label="No"
+        positive-label="Yes"
+        :saving-in-progress="saving"
+        @negative-button-clicked="showStatusChangeConfirmDialog = false"
+        @positive-button-clicked="onStateChange('')"
+      >
+        <span class="q-ml-sm"
+          >{{
+            pendingStatusChangeTo === 'unpublished'
+              ? 'Are you sure you wish to Unpublish this question? Any unaccepted invitations will not be able to access this quiz.'
+              : 'Are you sure you wish to Archive this question? No further changes will be possible.'
+          }}
+        </span>
+      </CustomDialog>
 
-          <q-card-actions align="right">
-            <q-btn v-close-popup flat label="No" color="accent" />
-            <q-btn
-              v-close-popup
-              flat
-              label="Yes"
-              color="accent"
-              @click="onStateChange('')"
-            />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
-      <q-dialog v-model="showInviteQuizTakerDialog" persistent>
-        <q-card>
-          <q-card-section class="row items-center">
-            <q-avatar icon="help_outline" color="primary" text-color="white" />
-            <div class="q-pa-md">
-              <div class="q-ml-sm">Send invite to:</div>
-              <q-input
-                ref="emailRef"
-                v-model="email"
-                outlined
-                dense
-                type="email"
-                placeholder="Email"
-                :rules="[(val) => !!val || '* Required', emailValidateSuccess]"
-                lazy-rules
-                class="email-field"
-                :disable="savingInvite"
-                @update:model-value="onFieldChange"
-              />
-            </div>
-          </q-card-section>
-
-          <q-card-actions align="right">
-            <q-btn
-              v-close-popup
-              flat
-              label="Cancel"
-              color="accent"
-              :disabled="savingInvite"
-            />
-            <q-btn
-              flat
-              label="Yes"
-              color="accent"
-              :disabled="!email"
-              :loading="savingInvite"
-              @click="onInviteQuizTaker"
-            />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
+      <CustomDialog
+        :show-dialog="showInviteQuizTakerDialog"
+        negative-label="Cancel"
+        positive-label="Send"
+        :saving-in-progress="savingInvite"
+        @negative-button-clicked="showInviteQuizTakerDialog = false"
+        @positive-button-clicked="onInviteQuizTaker"
+      >
+        <div class="q-pa-md">
+          <div class="q-ml-sm">Send invite to:</div>
+          <q-input
+            ref="emailRef"
+            v-model="email"
+            outlined
+            dense
+            type="email"
+            placeholder="Email"
+            :rules="[(val) => !!val || '* Required', emailValidateSuccess]"
+            lazy-rules
+            class="email-field"
+            :disable="savingInvite"
+            @update:model-value="onFieldChange"
+          />
+        </div>
+      </CustomDialog>
     </div>
   </PageContainerResponsive>
 </template>
@@ -269,6 +245,7 @@ import type { SortableOptions } from 'sortablejs';
 import Sortable from 'sortablejs';
 import { useMyQuizWithDetailsStore } from '../stores/myQuizWithDetails';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
+import CustomDialog from '../components/CustomDialog.vue';
 import { saveQuestionOrder, updateQuizStatus, inviteQuizTaker } from '../api';
 import { useMyQuizzesStore } from '../stores/myQuizzes';
 import { getLastUpdatedHumanized } from '../utils/common';
@@ -369,6 +346,7 @@ const onStateChange = async (newState: string) => {
       return;
     }
 
+    showStatusChangeConfirmDialog.value = false;
     myQuizzesStore.setDataStale();
   } catch (err) {
     console.error(err);

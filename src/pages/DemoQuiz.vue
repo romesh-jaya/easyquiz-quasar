@@ -69,31 +69,21 @@
       </div>
     </div>
     <div>
-      <q-dialog v-model="showActionConfirmDialog" persistent>
-        <q-card>
-          <q-card-section class="row items-center">
-            <q-avatar icon="help_outline" color="primary" text-color="white" />
-            <span class="q-ml-sm"
-              >{{
-                `Are you sure you wish to ${
-                  pendingQuizAction === 'EXIT_QUIZ' ? 'exit' : 'finish'
-                } the quiz?`
-              }}
-            </span>
-          </q-card-section>
-
-          <q-card-actions align="right">
-            <q-btn v-close-popup flat label="No" color="accent" />
-            <q-btn
-              v-close-popup
-              flat
-              label="Yes"
-              color="accent"
-              @click="onActionConfirm"
-            />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
+      <CustomDialog
+        :show-dialog="showActionConfirmDialog"
+        negative-label="No"
+        positive-label="Yes"
+        @negative-button-clicked="showActionConfirmDialog = false"
+        @positive-button-clicked="onActionConfirm"
+      >
+        <span class="q-ml-sm"
+          >{{
+            `Are you sure you wish to ${
+              pendingQuizAction === 'EXIT_QUIZ' ? 'exit' : 'finish'
+            } the quiz?`
+          }}
+        </span>
+      </CustomDialog>
     </div>
   </PageContainerResponsive>
 </template>
@@ -106,6 +96,7 @@ import { useMyQuizWithDetailsStore } from '../stores/myQuizWithDetails';
 import PageContainerResponsive from '../components/PageContainerResponsive.vue';
 import { QuizPhase } from '../enums/QuizPhase';
 import QuizStartPage from '../components/QuizStartPage.vue';
+import CustomDialog from '../components/CustomDialog.vue';
 import QuestionAndAnswers from '../components/QuestionAndAnswers.vue';
 import QuizResultsPage from '../components/QuizResultsPage.vue';
 import AnswersReview from '../components/AnswersReview.vue';
@@ -203,6 +194,7 @@ const onPendingQuizActionChange = (action: string) => {
 };
 
 const onActionConfirm = () => {
+  showActionConfirmDialog.value = false;
   if (pendingQuizAction.value === 'EXIT_QUIZ') {
     router.go(-1);
     return;
