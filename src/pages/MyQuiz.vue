@@ -50,7 +50,7 @@
                   myQuizWithDetails.statusDB === 'archived'
                 "
                 clickable
-                @click="onStateChange('published')"
+                @click="onStateChangeDirect('published')"
               >
                 <q-item-section>Publish</q-item-section>
               </q-item>
@@ -232,6 +232,12 @@
           />
         </div>
       </CustomDialog>
+
+      <CustomDialog :show-dialog="savingDirectStateChange">
+        <div class="q-pa-md">
+          <span class="q-mr-md">Please wait </span><q-spinner color="primary" />
+        </div>
+      </CustomDialog>
     </div>
   </PageContainerResponsive>
 </template>
@@ -281,6 +287,7 @@ const loading = computed(() => myQuizWithDetailsStore.loading);
 const error = ref('');
 const questionSortMode = ref(false);
 const saving = ref(false);
+const savingDirectStateChange = ref(false);
 const updatesNotAllowed = computed(
   () =>
     myQuizWithDetails.value?.statusDB === 'archived' ||
@@ -320,6 +327,12 @@ const moveItemInArray = (array: IQuestionInfo[], from: number, to: number) => {
 const onStateChangePending = (newStatus: string) => {
   showStatusChangeConfirmDialog.value = true;
   pendingStatusChangeTo.value = newStatus;
+};
+
+const onStateChangeDirect = async (newState: string) => {
+  savingDirectStateChange.value = true;
+  await onStateChange(newState);
+  savingDirectStateChange.value = false;
 };
 
 const onStateChange = async (newState: string) => {

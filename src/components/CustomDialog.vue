@@ -8,6 +8,7 @@
 
       <q-card-actions align="right">
         <q-btn
+          v-if="negativeLabel"
           flat
           :label="negativeLabel"
           :disabled="savingInProgress"
@@ -15,6 +16,7 @@
           @click="emit('negativeButtonClicked')"
         />
         <q-btn
+          v-if="positiveLabel"
           flat
           :label="positiveLabel"
           :loading="savingInProgress"
@@ -33,8 +35,8 @@ const emit = defineEmits(['positiveButtonClicked', 'negativeButtonClicked']);
 
 const props = defineProps({
   showDialog: { type: Boolean, required: true },
-  negativeLabel: { type: String, required: true },
-  positiveLabel: { type: String, required: true },
+  negativeLabel: { type: String, required: false, default: '' },
+  positiveLabel: { type: String, required: false, default: '' },
   savingInProgress: { type: Boolean, required: false, default: false },
 });
 
