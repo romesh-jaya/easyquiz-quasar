@@ -19,15 +19,6 @@
               no-caps
               class="text-subtitle1"
             />
-            <q-btn
-              to="/others-quizzes"
-              label="Others Quizzes"
-              flat
-              color="white"
-              text-color="accent"
-              class="text-subtitle1"
-              no-caps
-            />
           </div>
         </div>
         <div>
