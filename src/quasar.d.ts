@@ -9,3 +9,4 @@
 /// <reference types="@quasar/app-vite" />
 
 declare module 'boot/axios';
+declare module 'sortablejs-vue3';
