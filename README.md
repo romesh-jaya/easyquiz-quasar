@@ -85,6 +85,12 @@ Can be found [here](https://github.com/romesh-jaya/easyquiz-backend-nodejs).
 - Share the quiz that the user created to others via an email link.
 - Add time for quiz
 
+## Deployment
+
+`npm run deploy`
+
+- currently using Vercel CLI to deploy. Remember to promote a particular build into production once verified.
+
 ## Install the dependencies
 
 ```bash
