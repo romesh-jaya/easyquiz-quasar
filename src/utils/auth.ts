@@ -41,6 +41,7 @@ export const onAuthStateChanged = async (firebaseUser: User) => {
 
     try {
       // Fetch quizzes
+      myQuizzesStore.setDataStale();
       await myQuizzesStore.fetchQuizzes();
     } catch (err) {
       console.error(err);

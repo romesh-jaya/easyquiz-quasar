@@ -120,8 +120,8 @@
         >
       </div>
       <h3
-        class="text-h5 text-accent"
         v-if="myQuizWithDetails.questions?.length > 0"
+        class="text-h5 text-accent"
       >
         Questions
         <span>{{ ` (${myQuizWithDetails.questions?.length})` }}</span>
