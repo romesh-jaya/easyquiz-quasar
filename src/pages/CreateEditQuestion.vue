@@ -194,7 +194,7 @@ const myQuizWithDetailsStore = useMyQuizWithDetailsStore();
 const myQuizWithDetails = computed(
   () => myQuizWithDetailsStore.myQuizWithDetails
 );
-const questionMatched = myQuizWithDetails.value?.questions.find(
+const questionMatched = myQuizWithDetails.value?.questions?.find(
   (question) => question.id === questionId.value
 );
 const loading = computed(() => myQuizWithDetailsStore.loading);
@@ -230,7 +230,7 @@ watch(
 
 watch(myQuizWithDetails, () => {
   if (myQuizWithDetails.value) {
-    const questionMatched = myQuizWithDetails.value.questions.find(
+    const questionMatched = myQuizWithDetails.value.questions?.find(
       (question) => question.id === questionId.value
     );
     if (questionMatched) {

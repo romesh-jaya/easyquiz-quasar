@@ -23,7 +23,7 @@
                 clickable
                 :disable="
                   myQuizWithDetails.statusDB === 'archived' ||
-                  myQuizWithDetails.questions.length === 0
+                  myQuizWithDetails.questions?.length === 0
                 "
                 @click="onDemoQuiz"
               >
@@ -105,7 +105,7 @@
       <q-separator />
       <div class="q-my-xl button-container">
         <q-toggle
-          v-if="myQuizWithDetails.questions.length > 1 && !updatesNotAllowed"
+          v-if="myQuizWithDetails.questions?.length > 1 && !updatesNotAllowed"
           v-model="questionSortMode"
           label="Sort questions mode"
           class="toggle"
@@ -119,13 +119,14 @@
           >Add Question</q-btn
         >
       </div>
-      <h3 class="text-h5 text-accent">
+      <h3
+        class="text-h5 text-accent"
+        v-if="myQuizWithDetails.questions?.length > 0"
+      >
         Questions
-        <span v-if="myQuizWithDetails.questions.length !== 0">{{
-          ` (${myQuizWithDetails.questions.length})`
-        }}</span>
+        <span>{{ ` (${myQuizWithDetails.questions?.length})` }}</span>
       </h3>
-      <div v-if="myQuizWithDetails.questions.length === 0" class="q-mt-xl">
+      <div v-if="myQuizWithDetails.questions?.length === 0" class="q-mt-xl">
         <p v-if="!updatesNotAllowed">
           No questions have been added yet. Press Add Question to add a
           question.
@@ -169,7 +170,7 @@
       </div>
       <div class="q-my-xl button-container">
         <q-btn
-          v-if="myQuizWithDetails.questions.length > 1 && !updatesNotAllowed"
+          v-if="myQuizWithDetails.questions?.length > 1 && !updatesNotAllowed"
           color="secondary"
           :loading="saving"
           :disabled="!questionSortMode"
@@ -277,7 +278,7 @@ const myQuizWithDetails = computed(
 );
 const questionsList = ref<IQuestionInfo[]>(
   myQuizWithDetails.value
-    ? myQuizWithDetails.value.questions.map((question) => ({
+    ? myQuizWithDetails.value.questions?.map((question) => ({
         questionContent: question.questionContent,
         id: question.id,
       }))
@@ -303,10 +304,12 @@ const savingInvite = ref(false);
 
 watch(myQuizWithDetails, () => {
   if (myQuizWithDetails.value) {
-    questionsList.value = myQuizWithDetails.value.questions.map((question) => ({
-      questionContent: question.questionContent,
-      id: question.id,
-    }));
+    questionsList.value = myQuizWithDetails.value.questions?.map(
+      (question) => ({
+        questionContent: question.questionContent,
+        id: question.id,
+      })
+    );
   }
 });
 

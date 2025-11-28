@@ -1,5 +1,8 @@
 import { IAPIError } from './IAPIError';
 
 export interface IIdAPIError extends IAPIError {
-  id: string;
+  message?: string;
+  data: {
+    id?: string;
+  };
 }

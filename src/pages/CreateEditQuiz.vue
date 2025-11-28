@@ -148,7 +148,7 @@ const saveQuiz = async () => {
     if (myQuizWithDetails.value?.id === id.value) {
       myQuizWithDetailsStore.clearQuiz();
     }
-    router.push(`/my-quizzes/${response.id}`);
+    router.push(`/my-quizzes/${response.data?.id ?? id.value}`);
   } catch (err) {
     console.error(err);
 

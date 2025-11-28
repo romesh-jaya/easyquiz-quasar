@@ -37,7 +37,7 @@ const questionDbToClient = (dataOne: any): IQuestion => {
 };
 
 export const getUserData = async (email: string): Promise<IUserDataDB> => {
-  const response = await api.get(`${getBackendURL()}/api/auth/users/${email}`);
+  const response = await api.get(`${getBackendURL()}/api/auth/users/get`);
   if (response.data) {
     return {
       firstName: response.data.first_name,
@@ -62,7 +62,7 @@ export const getQuizWithDetails = async (
   if (response.data) {
     const quiz = {
       ...quizDbToClient(response.data),
-      questions: response.data.questions.map((dataOne: any) =>
+      questions: response.data.questions?.map((dataOne: any) =>
         questionDbToClient(dataOne)
       ),
     };
